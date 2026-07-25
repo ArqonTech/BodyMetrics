@@ -9,7 +9,8 @@ function freezeAnimations(clonedDoc: Document) {
     animation: none !important;
     transition: none !important;
     opacity: 1 !important;
-  }`;
+  }
+  .pdf-hide { visibility: hidden !important; }`;
   clonedDoc.head.appendChild(style);
 }
 

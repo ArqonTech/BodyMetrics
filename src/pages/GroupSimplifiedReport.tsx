@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Download, FileSpreadsheet, Users as UsersIcon,
-  AlertCircle, LayoutList, Ruler, Scale, Activity, Percent
+  AlertCircle, LayoutList, Ruler, Scale, Activity, Percent, X
 } from 'lucide-react';
 import { Loading } from '../components/Loading';
 import {
@@ -113,6 +113,7 @@ export default function GroupSimplifiedReport() {
   );
 
   const [rows, setRows] = useState<SimplifiedReportRow[]>([]);
+  const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
   const [skipped, setSkipped] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -126,6 +127,7 @@ export default function GroupSimplifiedReport() {
   useEffect(() => {
     if (members.length === 0) {
       setRows([]);
+      setRemovedIds(new Set());
       setSkipped([]);
       return;
     }
@@ -191,6 +193,7 @@ export default function GroupSimplifiedReport() {
 
       if (loadRequestId.current !== requestId) return;
       setRows(prepared);
+      setRemovedIds(new Set());
       setSkipped(skippedNames);
       setIsLoading(false);
     })();
@@ -208,13 +211,15 @@ export default function GroupSimplifiedReport() {
   const showCategoria = selections.categoria;
   const showIdade = selections.idade;
 
+  const visibleRows = useMemo(() => rows.filter(r => !removedIds.has(r.memberId)), [rows, removedIds]);
+
   const avgValues = useMemo(() => {
     const map: Partial<Record<SimplifiedReportColumnKey, number>> = {};
     avgMetricColumns.forEach(col => {
-      map[col.key] = average(rows.map(r => r[col.key] as number));
+      map[col.key] = average(visibleRows.map(r => r[col.key] as number));
     });
     return map;
-  }, [avgMetricColumns, rows]);
+  }, [avgMetricColumns, visibleRows]);
 
   const allSelected = SIMPLIFIED_REPORT_COLUMNS.every(c => selections[c.key]);
   const toggleAll = () => {
@@ -225,7 +230,7 @@ export default function GroupSimplifiedReport() {
   };
 
   const handleDownloadPdf = async () => {
-    if (!paperRef.current || rows.length === 0) return;
+    if (!paperRef.current || visibleRows.length === 0) return;
     setIsGenerating(true);
     try {
       const pdf = await generateTableReportPdf(paperRef.current, {
@@ -286,7 +291,7 @@ export default function GroupSimplifiedReport() {
         <button
           className="btn btn-primary sr-export-btn"
           onClick={handleDownloadPdf}
-          disabled={isGenerating || isLoading || rows.length === 0}
+          disabled={isGenerating || isLoading || visibleRows.length === 0}
         >
           {isGenerating ? 'Gerando...' : <><Download size={18} /> Exportar PDF</>}
         </button>
@@ -352,14 +357,18 @@ export default function GroupSimplifiedReport() {
             </div>
           )}
 
-          {!isLoading && rows.length === 0 && (
+          {!isLoading && visibleRows.length === 0 && (
             <div className="sr-centered">
               <UsersIcon size={48} color="var(--color-text-light)" />
-              <p className="sr-empty-text">Nenhum atleta selecionado possui avaliação cadastrada.</p>
+              <p className="sr-empty-text">
+                {rows.length > 0
+                  ? 'Todos os atletas foram removidos do relatório.'
+                  : 'Nenhum atleta selecionado possui avaliação cadastrada.'}
+              </p>
             </div>
           )}
 
-          {!isLoading && rows.length > 0 && (
+          {!isLoading && visibleRows.length > 0 && (
             <div className="sr-table-card" ref={paperRef}>
               {/* PDF-only header */}
               <div className="sr-pdf-header">
@@ -367,7 +376,7 @@ export default function GroupSimplifiedReport() {
                   <FileSpreadsheet size={18} />
                   <div>
                     <strong>Relatório Resumido do Grupo</strong>
-                    <span>{groupName} · {rows.length} de {members.length} atleta(s) · Gerado em {generatedAt}</span>
+                    <span>{groupName} · {visibleRows.length} de {members.length} atleta(s) · Gerado em {generatedAt}</span>
                   </div>
                 </div>
                 <div className="sr-legend">
@@ -382,6 +391,7 @@ export default function GroupSimplifiedReport() {
                 <table className="sr-table">
                   <thead>
                     <tr>
+                      <th className="sr-th sr-th-remove pdf-hide" />
                       <th className="sr-th sr-th-name">ATLETAS</th>
                       <th className="sr-th">Posição</th>
                       {showCategoria && <th className="sr-th">Categoria</th>}
@@ -396,12 +406,22 @@ export default function GroupSimplifiedReport() {
                     </tr>
                   </thead>
                   <tbody>
-                    {rows.map((row, idx) => (
+                    {visibleRows.map((row, idx) => (
                       <tr
                         key={row.memberId}
                         className="sr-table-row"
                         style={{ animationDelay: `${idx * 25}ms` }}
                       >
+                        <td className="sr-cell-remove pdf-hide">
+                          <button
+                            type="button"
+                            className="sr-remove-btn"
+                            title="Remover atleta do relatório"
+                            onClick={() => setRemovedIds(prev => new Set(prev).add(row.memberId))}
+                          >
+                            <X size={14} />
+                          </button>
+                        </td>
                         <td className="sr-cell-name">{row.nome}</td>
                         <td className="sr-cell-posicao">{row.posicao}</td>
                         {showCategoria && <td className="sr-cell-categoria">{row.categoria}</td>}

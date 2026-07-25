@@ -471,6 +471,46 @@
   gap: 4px;
 }
 
+.sr-th-remove,
+.sr-cell-remove {
+  width: 32px;
+  padding: 0.85rem 0.5rem;
+  text-align: center;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.sr-th-remove {
+  background: #f1f5f9;
+}
+
+.sr-cell-remove {
+  background: var(--color-bg-card);
+}
+
+.sr-table-row:hover .sr-cell-remove {
+  background: #f8fafc;
+}
+
+.sr-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  cursor: pointer;
+}
+
+.sr-remove-btn:hover {
+  background-color: #fecaca;
+}
+
 /* ── Fat color badges ────────────────────────────────────────────────────── */
 
 .sr-fat-badge {
