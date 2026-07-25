@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Download, FileSpreadsheet, Users as UsersIcon,
   AlertCircle, LayoutList, Ruler, Scale, Activity, Percent, X,
-  ArrowUp, ArrowDown, ArrowUpDown
+  ArrowUp, ArrowDown, ArrowUpDown, Upload, ChevronLeft, ChevronRight, Trash2
 } from 'lucide-react';
 import { Loading } from '../components/Loading';
 import {
@@ -121,6 +121,37 @@ export default function GroupSimplifiedReport() {
     '@BodyMetrics:simplifiedReportSort',
     null
   );
+
+  const [logos, setLogos] = useLocalStorage<string[]>('@BodyMetrics:reportLogos', []);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      Array.from(e.target.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            setLogos(prev => [...prev, event.target!.result as string]);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeLogo = (index: number) => {
+    setLogos(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const moveLogo = (index: number, direction: 'left' | 'right') => {
+    setLogos(prev => {
+      const newLogos = [...prev];
+      const swapIndex = direction === 'left' ? index - 1 : index + 1;
+      if (swapIndex < 0 || swapIndex >= newLogos.length) return prev;
+      [newLogos[index], newLogos[swapIndex]] = [newLogos[swapIndex], newLogos[index]];
+      return newLogos;
+    });
+  };
 
   const [rows, setRows] = useState<SimplifiedReportRow[]>([]);
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
@@ -341,6 +372,36 @@ export default function GroupSimplifiedReport() {
       <div className="sr-layout container">
         {/* Sidebar */}
         <aside className="sr-sidebar">
+          <div className="sr-logos-manager">
+            <h3>Logos do Relatório</h3>
+            <p>Adicione logos para o cabeçalho do relatório (PNG).</p>
+
+            <div className="sr-logos-list">
+              {logos.map((logo, idx) => (
+                <div key={idx} className="sr-logo-item">
+                  <img src={logo} alt={`Logo ${idx}`} className="sr-logo-thumbnail" />
+                  <div className="sr-logo-actions">
+                    <button onClick={() => moveLogo(idx, 'left')} disabled={idx === 0}><ChevronLeft size={16} /></button>
+                    <button onClick={() => removeLogo(idx)} className="sr-logo-danger"><Trash2 size={16} /></button>
+                    <button onClick={() => moveLogo(idx, 'right')} disabled={idx === logos.length - 1}><ChevronRight size={16} /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <input
+              type="file"
+              accept="image/png, image/jpeg"
+              multiple
+              ref={logoInputRef}
+              style={{ display: 'none' }}
+              onChange={handleLogoUpload}
+            />
+            <button className="btn btn-secondary sr-logo-upload-btn" onClick={() => logoInputRef.current?.click()}>
+              <Upload size={18} /> Adicionar Logo
+            </button>
+          </div>
+
           <div className="sr-sidebar-intro">
             <div className="sr-sidebar-icon"><LayoutList size={18} /></div>
             <div>
@@ -412,11 +473,20 @@ export default function GroupSimplifiedReport() {
             <div className="sr-table-card" ref={paperRef}>
               {/* PDF-only header */}
               <div className="sr-pdf-header">
-                <div className="sr-pdf-header-info">
-                  <FileSpreadsheet size={18} />
-                  <div>
-                    <strong>Relatório Resumido do Grupo</strong>
-                    <span>{groupName} · {visibleRows.length} de {members.length} atleta(s) · Gerado em {generatedAt}</span>
+                <div className="sr-pdf-header-left">
+                  {logos.length > 0 && (
+                    <div className="sr-pdf-header-logos">
+                      {logos.map((logo, idx) => (
+                        <img key={idx} src={logo} alt={`Logo ${idx}`} className="sr-pdf-header-logo-img" />
+                      ))}
+                    </div>
+                  )}
+                  <div className="sr-pdf-header-info">
+                    <FileSpreadsheet size={18} />
+                    <div>
+                      <strong>Relatório Resumido do Grupo</strong>
+                      <span>{groupName} · {visibleRows.length} de {members.length} atleta(s) · Gerado em {generatedAt}</span>
+                    </div>
                   </div>
                 </div>
                 <div className="sr-legend">
