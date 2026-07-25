@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Download, FileSpreadsheet, Users as UsersIcon,
-  AlertCircle, LayoutList, Ruler, Scale, Activity, Percent, X
+  AlertCircle, LayoutList, Ruler, Scale, Activity, Percent, X,
+  ArrowUp, ArrowDown, ArrowUpDown
 } from 'lucide-react';
 import { Loading } from '../components/Loading';
 import {
@@ -39,6 +40,10 @@ interface SimplifiedReportRow {
 }
 
 type FatColorKey = 'yellow' | 'green' | 'orange' | 'red';
+
+type SortKey = 'nome' | 'posicao' | SimplifiedReportColumnKey;
+type SortDirection = 'asc' | 'desc';
+interface SortState { key: SortKey; direction: SortDirection }
 
 /* ─── Constants ─────────────────────────────────────────────────────────── */
 
@@ -110,6 +115,11 @@ export default function GroupSimplifiedReport() {
   const [selections, setSelections] = useLocalStorage(
     '@BodyMetrics:simplifiedReportColumns',
     createDefaultSimplifiedReportSelections()
+  );
+
+  const [sortState, setSortState] = useLocalStorage<SortState | null>(
+    '@BodyMetrics:simplifiedReportSort',
+    null
   );
 
   const [rows, setRows] = useState<SimplifiedReportRow[]>([]);
@@ -212,6 +222,36 @@ export default function GroupSimplifiedReport() {
   const showIdade = selections.idade;
 
   const visibleRows = useMemo(() => rows.filter(r => !removedIds.has(r.memberId)), [rows, removedIds]);
+
+  const sortedRows = useMemo(() => {
+    if (!sortState) return visibleRows;
+    const { key, direction } = sortState;
+    const sign = direction === 'asc' ? 1 : -1;
+    return [...visibleRows].sort((a, b) => {
+      const va = a[key as keyof SimplifiedReportRow];
+      const vb = b[key as keyof SimplifiedReportRow];
+      if (typeof va === 'string' && typeof vb === 'string') {
+        return va.localeCompare(vb, 'pt-BR') * sign;
+      }
+      return ((va as number) - (vb as number)) * sign;
+    });
+  }, [visibleRows, sortState]);
+
+  const handleSort = (key: SortKey) => {
+    setSortState(prev => {
+      if (prev?.key === key) {
+        return prev.direction === 'asc' ? { key, direction: 'desc' } : null;
+      }
+      return { key, direction: 'asc' };
+    });
+  };
+
+  const sortIcon = (key: SortKey) => {
+    if (sortState?.key !== key) return <ArrowUpDown size={12} className="sr-sort-icon sr-sort-icon-idle pdf-hide" />;
+    return sortState.direction === 'asc'
+      ? <ArrowUp size={12} className="sr-sort-icon sr-sort-icon-active pdf-hide" />
+      : <ArrowDown size={12} className="sr-sort-icon sr-sort-icon-active pdf-hide" />;
+  };
 
   const avgValues = useMemo(() => {
     const map: Partial<Record<SimplifiedReportColumnKey, number>> = {};
@@ -392,21 +432,34 @@ export default function GroupSimplifiedReport() {
                   <thead>
                     <tr>
                       <th className="sr-th sr-th-remove pdf-hide" />
-                      <th className="sr-th sr-th-name">ATLETAS</th>
-                      <th className="sr-th">Posição</th>
-                      {showCategoria && <th className="sr-th">Categoria</th>}
-                      {showIdade && <th className="sr-th sr-th-numeric">Idade</th>}
+                      <th className="sr-th sr-th-name sr-th-sortable" onClick={() => handleSort('nome')}>
+                        ATLETAS {sortIcon('nome')}
+                      </th>
+                      <th className="sr-th sr-th-sortable" onClick={() => handleSort('posicao')}>
+                        Posição {sortIcon('posicao')}
+                      </th>
+                      {showCategoria && (
+                        <th className="sr-th sr-th-sortable" onClick={() => handleSort('categoria')}>
+                          Categoria {sortIcon('categoria')}
+                        </th>
+                      )}
+                      {showIdade && (
+                        <th className="sr-th sr-th-numeric sr-th-sortable" onClick={() => handleSort('idade')}>
+                          Idade {sortIcon('idade')}
+                        </th>
+                      )}
                       {visibleMetricColumns.map(col => (
-                        <th key={col.key} className="sr-th sr-th-numeric">
+                        <th key={col.key} className="sr-th sr-th-numeric sr-th-sortable" onClick={() => handleSort(col.key)}>
                           <span className="sr-th-icon">{COLUMN_ICONS[col.key]}</span>
                           {col.label}
                           {col.unit && <span className="sr-th-unit"> ({col.unit})</span>}
+                          {sortIcon(col.key)}
                         </th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {visibleRows.map((row, idx) => (
+                    {sortedRows.map((row, idx) => (
                       <tr
                         key={row.memberId}
                         className="sr-table-row"

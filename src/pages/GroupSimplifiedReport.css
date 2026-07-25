@@ -418,6 +418,30 @@
   margin-left: 2px;
 }
 
+.sr-th-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sr-th-sortable:hover {
+  background: #e2e8f0;
+}
+
+.sr-sort-icon {
+  display: inline-flex;
+  vertical-align: -1px;
+  margin-left: 3px;
+}
+
+.sr-sort-icon-idle {
+  opacity: 0.35;
+}
+
+.sr-sort-icon-active {
+  opacity: 1;
+  color: var(--color-primary);
+}
+
 /* Data rows */
 
 .sr-table-row {
