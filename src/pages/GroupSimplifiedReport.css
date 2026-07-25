@@ -94,6 +94,85 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+/* Logos manager */
+
+.sr-logos-manager {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sr-logos-manager h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-main);
+}
+
+.sr-logos-manager p {
+  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.sr-logos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.sr-logo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: var(--color-bg-page);
+  padding: 0.6rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.sr-logo-thumbnail {
+  max-width: 100%;
+  max-height: 80px;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+.sr-logo-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.sr-logo-actions button {
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-main);
+}
+
+.sr-logo-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sr-logo-actions button.sr-logo-danger {
+  color: #dc2626;
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.sr-logo-upload-btn {
+  width: 100%;
+  justify-content: center;
+}
+
 .sr-sidebar-icon {
   width: 36px;
   height: 36px;
@@ -324,13 +403,34 @@
 
 .sr-pdf-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.75rem;
   padding: 1rem 1.25rem;
   background: var(--color-primary-light);
   border-bottom: 1px solid #c6e6d3;
+}
+
+.sr-pdf-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sr-pdf-header-logos {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.sr-pdf-header-logo-img {
+  max-height: 100px;
+  max-width: 200px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
 .sr-pdf-header-info {
@@ -418,6 +518,30 @@
   margin-left: 2px;
 }
 
+.sr-th-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sr-th-sortable:hover {
+  background: #e2e8f0;
+}
+
+.sr-sort-icon {
+  display: inline-flex;
+  vertical-align: -1px;
+  margin-left: 3px;
+}
+
+.sr-sort-icon-idle {
+  opacity: 0.35;
+}
+
+.sr-sort-icon-active {
+  opacity: 1;
+  color: var(--color-primary);
+}
+
 /* Data rows */
 
 .sr-table-row {
@@ -469,6 +593,46 @@
   align-items: center;
   justify-content: flex-end;
   gap: 4px;
+}
+
+.sr-th-remove,
+.sr-cell-remove {
+  width: 32px;
+  padding: 0.85rem 0.5rem;
+  text-align: center;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.sr-th-remove {
+  background: #f1f5f9;
+}
+
+.sr-cell-remove {
+  background: var(--color-bg-card);
+}
+
+.sr-table-row:hover .sr-cell-remove {
+  background: #f8fafc;
+}
+
+.sr-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  cursor: pointer;
+}
+
+.sr-remove-btn:hover {
+  background-color: #fecaca;
 }
 
 /* ── Fat color badges ────────────────────────────────────────────────────── */

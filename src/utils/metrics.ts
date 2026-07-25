@@ -122,8 +122,8 @@ export function calculateMetrics(
     massaMuscular = alturaM * (mmTermo1 + mmTermo2 + mmTermo3) + (2.4 * fatorSexo) - (0.048 * idade) + fatorRaca + 7.8;
   }
 
-  // Relação Massa Muscular-Ossos (MLG / Ossos)
-  const relacaoMusculoOsso = (mlg > 0 && ossos > 0) ? mlg / ossos : 0;
+  // Relação Massa Muscular-Ossos (Massa Muscular / Ossos)
+  const relacaoMusculoOsso = (massaMuscular > 0 && ossos > 0) ? massaMuscular / ossos : 0;
 
   // Relação Massa Muscular-Gordura (Massa Muscular / Gordura)
   const relacaoMusculoGordura = (massaMuscular > 0 && gordura > 0) ? massaMuscular / gordura : 0;

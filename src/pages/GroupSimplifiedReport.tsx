@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Download, FileSpreadsheet, Users as UsersIcon,
-  AlertCircle, LayoutList, Ruler, Scale, Activity, Percent
+  AlertCircle, LayoutList, Ruler, Scale, Activity, Percent, X,
+  ArrowUp, ArrowDown, ArrowUpDown, Upload, ChevronLeft, ChevronRight, Trash2
 } from 'lucide-react';
 import { Loading } from '../components/Loading';
 import {
@@ -39,6 +40,10 @@ interface SimplifiedReportRow {
 }
 
 type FatColorKey = 'yellow' | 'green' | 'orange' | 'red';
+
+type SortKey = 'nome' | 'posicao' | SimplifiedReportColumnKey;
+type SortDirection = 'asc' | 'desc';
+interface SortState { key: SortKey; direction: SortDirection }
 
 /* ─── Constants ─────────────────────────────────────────────────────────── */
 
@@ -112,7 +117,44 @@ export default function GroupSimplifiedReport() {
     createDefaultSimplifiedReportSelections()
   );
 
+  const [sortState, setSortState] = useLocalStorage<SortState | null>(
+    '@BodyMetrics:simplifiedReportSort',
+    null
+  );
+
+  const [logos, setLogos] = useLocalStorage<string[]>('@BodyMetrics:reportLogos', []);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      Array.from(e.target.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            setLogos(prev => [...prev, event.target!.result as string]);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeLogo = (index: number) => {
+    setLogos(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const moveLogo = (index: number, direction: 'left' | 'right') => {
+    setLogos(prev => {
+      const newLogos = [...prev];
+      const swapIndex = direction === 'left' ? index - 1 : index + 1;
+      if (swapIndex < 0 || swapIndex >= newLogos.length) return prev;
+      [newLogos[index], newLogos[swapIndex]] = [newLogos[swapIndex], newLogos[index]];
+      return newLogos;
+    });
+  };
+
   const [rows, setRows] = useState<SimplifiedReportRow[]>([]);
+  const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
   const [skipped, setSkipped] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -126,6 +168,7 @@ export default function GroupSimplifiedReport() {
   useEffect(() => {
     if (members.length === 0) {
       setRows([]);
+      setRemovedIds(new Set());
       setSkipped([]);
       return;
     }
@@ -191,6 +234,7 @@ export default function GroupSimplifiedReport() {
 
       if (loadRequestId.current !== requestId) return;
       setRows(prepared);
+      setRemovedIds(new Set());
       setSkipped(skippedNames);
       setIsLoading(false);
     })();
@@ -208,13 +252,45 @@ export default function GroupSimplifiedReport() {
   const showCategoria = selections.categoria;
   const showIdade = selections.idade;
 
+  const visibleRows = useMemo(() => rows.filter(r => !removedIds.has(r.memberId)), [rows, removedIds]);
+
+  const sortedRows = useMemo(() => {
+    if (!sortState) return visibleRows;
+    const { key, direction } = sortState;
+    const sign = direction === 'asc' ? 1 : -1;
+    return [...visibleRows].sort((a, b) => {
+      const va = a[key as keyof SimplifiedReportRow];
+      const vb = b[key as keyof SimplifiedReportRow];
+      if (typeof va === 'string' && typeof vb === 'string') {
+        return va.localeCompare(vb, 'pt-BR') * sign;
+      }
+      return ((va as number) - (vb as number)) * sign;
+    });
+  }, [visibleRows, sortState]);
+
+  const handleSort = (key: SortKey) => {
+    setSortState(prev => {
+      if (prev?.key === key) {
+        return prev.direction === 'asc' ? { key, direction: 'desc' } : null;
+      }
+      return { key, direction: 'asc' };
+    });
+  };
+
+  const sortIcon = (key: SortKey) => {
+    if (sortState?.key !== key) return <ArrowUpDown size={12} className="sr-sort-icon sr-sort-icon-idle pdf-hide" />;
+    return sortState.direction === 'asc'
+      ? <ArrowUp size={12} className="sr-sort-icon sr-sort-icon-active pdf-hide" />
+      : <ArrowDown size={12} className="sr-sort-icon sr-sort-icon-active pdf-hide" />;
+  };
+
   const avgValues = useMemo(() => {
     const map: Partial<Record<SimplifiedReportColumnKey, number>> = {};
     avgMetricColumns.forEach(col => {
-      map[col.key] = average(rows.map(r => r[col.key] as number));
+      map[col.key] = average(visibleRows.map(r => r[col.key] as number));
     });
     return map;
-  }, [avgMetricColumns, rows]);
+  }, [avgMetricColumns, visibleRows]);
 
   const allSelected = SIMPLIFIED_REPORT_COLUMNS.every(c => selections[c.key]);
   const toggleAll = () => {
@@ -225,7 +301,7 @@ export default function GroupSimplifiedReport() {
   };
 
   const handleDownloadPdf = async () => {
-    if (!paperRef.current || rows.length === 0) return;
+    if (!paperRef.current || visibleRows.length === 0) return;
     setIsGenerating(true);
     try {
       const pdf = await generateTableReportPdf(paperRef.current, {
@@ -286,7 +362,7 @@ export default function GroupSimplifiedReport() {
         <button
           className="btn btn-primary sr-export-btn"
           onClick={handleDownloadPdf}
-          disabled={isGenerating || isLoading || rows.length === 0}
+          disabled={isGenerating || isLoading || visibleRows.length === 0}
         >
           {isGenerating ? 'Gerando...' : <><Download size={18} /> Exportar PDF</>}
         </button>
@@ -296,6 +372,36 @@ export default function GroupSimplifiedReport() {
       <div className="sr-layout container">
         {/* Sidebar */}
         <aside className="sr-sidebar">
+          <div className="sr-logos-manager">
+            <h3>Logos do Relatório</h3>
+            <p>Adicione logos para o cabeçalho do relatório (PNG).</p>
+
+            <div className="sr-logos-list">
+              {logos.map((logo, idx) => (
+                <div key={idx} className="sr-logo-item">
+                  <img src={logo} alt={`Logo ${idx}`} className="sr-logo-thumbnail" />
+                  <div className="sr-logo-actions">
+                    <button onClick={() => moveLogo(idx, 'left')} disabled={idx === 0}><ChevronLeft size={16} /></button>
+                    <button onClick={() => removeLogo(idx)} className="sr-logo-danger"><Trash2 size={16} /></button>
+                    <button onClick={() => moveLogo(idx, 'right')} disabled={idx === logos.length - 1}><ChevronRight size={16} /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <input
+              type="file"
+              accept="image/png, image/jpeg"
+              multiple
+              ref={logoInputRef}
+              style={{ display: 'none' }}
+              onChange={handleLogoUpload}
+            />
+            <button className="btn btn-secondary sr-logo-upload-btn" onClick={() => logoInputRef.current?.click()}>
+              <Upload size={18} /> Adicionar Logo
+            </button>
+          </div>
+
           <div className="sr-sidebar-intro">
             <div className="sr-sidebar-icon"><LayoutList size={18} /></div>
             <div>
@@ -352,22 +458,35 @@ export default function GroupSimplifiedReport() {
             </div>
           )}
 
-          {!isLoading && rows.length === 0 && (
+          {!isLoading && visibleRows.length === 0 && (
             <div className="sr-centered">
               <UsersIcon size={48} color="var(--color-text-light)" />
-              <p className="sr-empty-text">Nenhum atleta selecionado possui avaliação cadastrada.</p>
+              <p className="sr-empty-text">
+                {rows.length > 0
+                  ? 'Todos os atletas foram removidos do relatório.'
+                  : 'Nenhum atleta selecionado possui avaliação cadastrada.'}
+              </p>
             </div>
           )}
 
-          {!isLoading && rows.length > 0 && (
+          {!isLoading && visibleRows.length > 0 && (
             <div className="sr-table-card" ref={paperRef}>
               {/* PDF-only header */}
               <div className="sr-pdf-header">
-                <div className="sr-pdf-header-info">
-                  <FileSpreadsheet size={18} />
-                  <div>
-                    <strong>Relatório Resumido do Grupo</strong>
-                    <span>{groupName} · {rows.length} de {members.length} atleta(s) · Gerado em {generatedAt}</span>
+                <div className="sr-pdf-header-left">
+                  {logos.length > 0 && (
+                    <div className="sr-pdf-header-logos">
+                      {logos.map((logo, idx) => (
+                        <img key={idx} src={logo} alt={`Logo ${idx}`} className="sr-pdf-header-logo-img" />
+                      ))}
+                    </div>
+                  )}
+                  <div className="sr-pdf-header-info">
+                    <FileSpreadsheet size={18} />
+                    <div>
+                      <strong>Relatório Resumido do Grupo</strong>
+                      <span>{groupName} · {visibleRows.length} de {members.length} atleta(s) · Gerado em {generatedAt}</span>
+                    </div>
                   </div>
                 </div>
                 <div className="sr-legend">
@@ -382,26 +501,50 @@ export default function GroupSimplifiedReport() {
                 <table className="sr-table">
                   <thead>
                     <tr>
-                      <th className="sr-th sr-th-name">ATLETAS</th>
-                      <th className="sr-th">Posição</th>
-                      {showCategoria && <th className="sr-th">Categoria</th>}
-                      {showIdade && <th className="sr-th sr-th-numeric">Idade</th>}
+                      <th className="sr-th sr-th-remove pdf-hide" />
+                      <th className="sr-th sr-th-name sr-th-sortable" onClick={() => handleSort('nome')}>
+                        ATLETAS {sortIcon('nome')}
+                      </th>
+                      <th className="sr-th sr-th-sortable" onClick={() => handleSort('posicao')}>
+                        Posição {sortIcon('posicao')}
+                      </th>
+                      {showCategoria && (
+                        <th className="sr-th sr-th-sortable" onClick={() => handleSort('categoria')}>
+                          Categoria {sortIcon('categoria')}
+                        </th>
+                      )}
+                      {showIdade && (
+                        <th className="sr-th sr-th-numeric sr-th-sortable" onClick={() => handleSort('idade')}>
+                          Idade {sortIcon('idade')}
+                        </th>
+                      )}
                       {visibleMetricColumns.map(col => (
-                        <th key={col.key} className="sr-th sr-th-numeric">
+                        <th key={col.key} className="sr-th sr-th-numeric sr-th-sortable" onClick={() => handleSort(col.key)}>
                           <span className="sr-th-icon">{COLUMN_ICONS[col.key]}</span>
                           {col.label}
                           {col.unit && <span className="sr-th-unit"> ({col.unit})</span>}
+                          {sortIcon(col.key)}
                         </th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {rows.map((row, idx) => (
+                    {sortedRows.map((row, idx) => (
                       <tr
                         key={row.memberId}
                         className="sr-table-row"
                         style={{ animationDelay: `${idx * 25}ms` }}
                       >
+                        <td className="sr-cell-remove pdf-hide">
+                          <button
+                            type="button"
+                            className="sr-remove-btn"
+                            title="Remover atleta do relatório"
+                            onClick={() => setRemovedIds(prev => new Set(prev).add(row.memberId))}
+                          >
+                            <X size={14} />
+                          </button>
+                        </td>
                         <td className="sr-cell-name">{row.nome}</td>
                         <td className="sr-cell-posicao">{row.posicao}</td>
                         {showCategoria && <td className="sr-cell-categoria">{row.categoria}</td>}

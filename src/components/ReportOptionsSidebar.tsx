@@ -52,7 +52,7 @@ const SECTION_ITEMS: Record<keyof ReportSelections, { id: string; label: string 
   circumferences: [
     { id: 'shoulder', label: 'Ombro' }, { id: 'chest', label: 'Peitoral' },
     { id: 'armRight', label: 'Braço D.' }, { id: 'armLeft', label: 'Braço E.' },
-    { id: 'waist', label: 'Cintura' }, { id: 'hip', label: 'Quadril' },
+    { id: 'waist', label: 'Cintura' }, { id: 'abdomen', label: 'Abdômen' }, { id: 'hip', label: 'Quadril' },
     { id: 'thighMidRight', label: 'Medial D.' }, { id: 'thighMidLeft', label: 'Medial E.' },
     { id: 'calfRight', label: 'Pantu. D.' }, { id: 'calfLeft', label: 'Pantu. E.' },
     { id: 'wristRight', label: 'D. Punho' }, { id: 'kneeRight', label: 'D. Joelho' },

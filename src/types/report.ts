@@ -31,7 +31,7 @@ export function createDefaultReportSelections(): ReportSelections {
     circumferences: {
       items: {
         shoulder: true, chest: true, armRight: true, armLeft: true, waist: true,
-        hip: true, thighMidRight: true, thighMidLeft: true, calfRight: true,
+        abdomen: true, hip: true, thighMidRight: true, thighMidLeft: true, calfRight: true,
         calfLeft: true, wristRight: true, kneeRight: true, ankle: true, envergadura: true
       }
     }
