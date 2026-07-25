@@ -455,6 +455,7 @@ export const ReportPaper = forwardRef<HTMLDivElement, ReportPaperProps>(function
         { id: 'armRight', label: 'Braço Dir.', cur: currentEval?.circumferences?.armRight, cmp: compareEval?.circumferences?.armRight, unit: 'cm' },
         { id: 'armLeft', label: 'Braço Esq.', cur: currentEval?.circumferences?.armLeft, cmp: compareEval?.circumferences?.armLeft, unit: 'cm' },
         { id: 'waist', label: 'Cintura', cur: currentEval?.circumferences?.waist, cmp: compareEval?.circumferences?.waist, unit: 'cm' },
+        { id: 'abdomen', label: 'Abdômen', cur: currentEval?.circumferences?.abdomen, cmp: compareEval?.circumferences?.abdomen, unit: 'cm' },
         { id: 'hip', label: 'Quadril', cur: currentEval?.circumferences?.hip, cmp: compareEval?.circumferences?.hip, unit: 'cm' },
         { id: 'thighMidRight', label: 'Medial Dir.', cur: currentEval?.circumferences?.thighMidRight, cmp: compareEval?.circumferences?.thighMidRight, unit: 'cm' },
         { id: 'thighMidLeft', label: 'Medial Esq.', cur: currentEval?.circumferences?.thighMidLeft, cmp: compareEval?.circumferences?.thighMidLeft, unit: 'cm' },
