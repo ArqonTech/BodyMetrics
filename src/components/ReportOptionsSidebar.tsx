@@ -31,7 +31,7 @@ const SECTION_ITEMS: Record<keyof ReportSelections, { id: string; label: string 
     { id: 'ossos', label: 'Massa Óssea' }, { id: 'massaMuscular', label: 'Massa Muscular' },
     { id: 'relacaoMusculoOsso', label: 'Rel. Músculo/Osso' },
     { id: 'relacaoMusculoGordura', label: 'Rel. Músculo/Gordura' },
-    { id: 'pvc', label: 'PVC' }
+    { id: 'dpvc', label: 'DPVC' }, { id: 'alturaPrevista', label: 'Altura Prevista' }
   ],
   symmetry: [
     { id: 'Coxa', label: 'Coxa' }, { id: 'Panturrilha', label: 'Panturrilha' }, { id: 'Braço', label: 'Braço' }

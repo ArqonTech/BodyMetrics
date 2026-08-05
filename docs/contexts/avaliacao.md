@@ -21,7 +21,11 @@ Ao comparar avaliações ou visualizar os dados atuais, as seguintes fórmulas s
 - **Percentual de Gordura (%)**: O usuário deve poder escolher entre as fórmulas de Pollock ou Faulkner.
 - **Relação Massa Muscular-Ossos**: `MLG / Ossos` (índice adimensional).
 - **Relação Massa Muscular-Gordura**: `Massa Muscular / Gordura` (índice adimensional).
-- **PVC (Pico de Velocidade de Crescimento)**: `-9.236 + (0.0002708 * Altura * AlturaSentado) - (0.001663 * Idade * Altura) + (0.007216 * Idade * AlturaSentado) + (0.02292 * Peso / Altura)` — requer campo `sittingHeight` preenchido na avaliação.
+- **DPVC (Desvio do Pico de Velocidade de Crescimento)**: fórmula por sexo, requer `sittingHeight`, altura, idade e peso preenchidos na avaliação (sem esses dados, exibe `-`). Sexo ausente usa a fórmula de Homem.
+  - Homem: `-9.236 + (0.0002708 * ((Altura - AlturaSentado) * AlturaSentado)) - (0.001663 * (Idade * (Altura - AlturaSentado))) + (0.007216 * (Idade * AlturaSentado)) + (0.02292 * ((Peso / Altura) * 100))`
+  - Mulher: `-9.376 + (0.0001882 * ((Altura - AlturaSentado) * AlturaSentado)) + (0.0022 * (Idade * (Altura - AlturaSentado))) + (0.005841 * (Idade * AlturaSentado)) - (0.002658 * (Idade * Peso)) + (0.07693 * ((Peso / Altura) * 100))`
+  - Exibido com 2 casas decimais (valor completo usado no cálculo); negativo é válido (maturação precoce) e é exibido normalmente.
+- **Altura Prevista**: derivada do DPVC de precisão completa, arredondada a 1 casa decimal: `IF(DPVC < -1, Altura/0.91, IF(DPVC < 0, Altura/0.94, IF(DPVC < 1, Altura/0.975, IF(DPVC < 2, Altura/0.99, Altura))))`. Exibida sem trend/comparação.
 
 ## Comportamento no Preenchimento de Nova Avaliação
 - **Comparação em Tempo Real**: Durante o input dos campos no formulário de Nova Avaliação ou Edição, o sistema exibe abaixo de cada campo o valor registrado na avaliação anterior imediatamente anterior.

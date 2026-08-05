@@ -12,7 +12,9 @@ export interface AthleteMetrics {
   massaMuscular: number;
   relacaoMusculoOsso: number;
   relacaoMusculoGordura: number;
-  pvc: number;
+  dpvc: number;
+  hasDpvc: boolean;
+  alturaPrevista: number;
   simetria: {
     coxa: { d: number; e: number; diff: number };
     pantu: { d: number; e: number; diff: number };
@@ -128,15 +130,28 @@ export function calculateMetrics(
   // Relação Massa Muscular-Gordura (Massa Muscular / Gordura)
   const relacaoMusculoGordura = (massaMuscular > 0 && gordura > 0) ? massaMuscular / gordura : 0;
 
-  // PVC (Pico de Velocidade de Crescimento)
+  // DPVC (Desvio do Pico de Velocidade de Crescimento)
   const altSentado = evalData.sittingHeight || 0;
-  let pvc = 0;
-  if (altSentado > 0 && altura > 0 && idade > 0 && peso > 0) {
-    pvc = -9.236
-      + (0.0002708 * (altura * altSentado))
-      - (0.001663 * (idade * altura))
-      + (0.007216 * (idade * altSentado))
-      + (0.02292 * (peso / altura));
+  const hasDpvc = altSentado > 0 && altura > 0 && idade > 0 && peso > 0;
+  let dpvc = 0;
+  let alturaPrevista = 0;
+  if (hasDpvc) {
+    const isMulher = mappedAthlete?.gender === 'Feminino';
+    dpvc = isMulher
+      ? -9.376
+        + (0.0001882 * ((altura - altSentado) * altSentado))
+        + (0.0022 * (idade * (altura - altSentado)))
+        + (0.005841 * (idade * altSentado))
+        - (0.002658 * (idade * peso))
+        + (0.07693 * ((peso / altura) * 100))
+      : -9.236
+        + (0.0002708 * ((altura - altSentado) * altSentado))
+        - (0.001663 * (idade * (altura - altSentado)))
+        + (0.007216 * (idade * altSentado))
+        + (0.02292 * ((peso / altura) * 100));
+
+    const divisor = dpvc < -1 ? 0.91 : dpvc < 0 ? 0.94 : dpvc < 1 ? 0.975 : dpvc < 2 ? 0.99 : 1;
+    alturaPrevista = Math.round((altura / divisor) * 10) / 10;
   }
 
   return {
@@ -150,7 +165,9 @@ export function calculateMetrics(
     massaMuscular,
     relacaoMusculoOsso,
     relacaoMusculoGordura,
-    pvc,
+    dpvc,
+    hasDpvc,
+    alturaPrevista,
     simetria: {
       coxa: { d: coxaD_C, e: coxaE_C, diff: Math.abs(coxaD_C - coxaE_C) },
       pantu: { d: pantuD_C, e: pantuE_C, diff: Math.abs(pantuD_C - pantuE_C) },
