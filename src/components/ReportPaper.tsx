@@ -173,15 +173,18 @@ export const ReportPaper = forwardRef<HTMLDivElement, ReportPaperProps>(function
                     { id: 'massaMuscular', label: 'Massa Muscular', key: 'massaMuscular', unit: 'kg', icon: <Dumbbell size={18} />, inverseGood: false, showTrend: true },
                     { id: 'relacaoMusculoOsso', label: 'Rel. Músculo/Osso', key: 'relacaoMusculoOsso', unit: 'índice', icon: <Activity size={18} />, inverseGood: false, showTrend: true },
                     { id: 'relacaoMusculoGordura', label: 'Rel. Músculo/Gordura', key: 'relacaoMusculoGordura', unit: 'índice', icon: <Activity size={18} />, inverseGood: false, showTrend: true },
-                    { id: 'pvc', label: 'PVC', key: 'pvc', unit: 'anos', icon: <Ruler size={18} />, inverseGood: false, showTrend: true },
+                    { id: 'dpvc', label: 'DPVC', key: 'dpvc', unit: '', icon: <Ruler size={18} />, inverseGood: false, showTrend: true, allowNegative: true, hasDataKey: 'hasDpvc' as const },
+                    { id: 'alturaPrevista', label: 'Altura Prevista', key: 'alturaPrevista', unit: 'cm', icon: <Ruler size={18} />, inverseGood: false, showTrend: false, hasDataKey: 'hasDpvc' as const },
                   ].filter(m => (selections.composition.items as any)[m.id]).map((m) => {
                     const curVal = currentMetrics[m.key];
                     const cmpVal = compareMetrics ? compareMetrics[m.key] : undefined;
-                    const isNA = !curVal || curVal <= 0;
-                    const trend = m.showTrend ? getTrendState(curVal, cmpVal, m.inverseGood) : null;
+                    const hasData = (m as any).hasDataKey ? currentMetrics[(m as any).hasDataKey] : (!!curVal && curVal > 0);
+                    const isNA = !hasData;
+                    const trend = m.showTrend && (!(m as any).hasDataKey || (hasData && compareMetrics?.[(m as any).hasDataKey])) ? getTrendState(curVal, cmpVal, m.inverseGood) : null;
                     const avgText = showGroupAverage
                       ? getAverageText(groupAverageMetrics?.[m.key as keyof AthleteMetrics] as number | undefined, m.unit)
                       : null;
+                    const displayValue = isNA ? '-' : (m as any).allowNegative ? curVal.toFixed(2).replace('.', ',') : formatNumber(curVal);
 
                     return (
                       <div key={m.key} className={`report-metric-box ${isNA ? 'is-na' : ''}`}>
@@ -193,7 +196,7 @@ export const ReportPaper = forwardRef<HTMLDivElement, ReportPaperProps>(function
                         </div>
 
                         <div className="report-metric-body">
-                          <span className="report-metric-value">{formatNumber(curVal)}</span>
+                          <span className="report-metric-value">{displayValue}</span>
                           <span className="report-metric-unit">{m.unit}</span>
                         </div>
 
