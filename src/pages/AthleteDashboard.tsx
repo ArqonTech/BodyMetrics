@@ -138,6 +138,11 @@ export default function AthleteDashboard() {
     return val.toFixed(2).replace('.', ',');
   };
 
+  const formatDpvc = (val: number, hasData: boolean) => {
+    if (!hasData || val === null || val === undefined || isNaN(val)) return '-';
+    return val.toFixed(2).replace('.', ',');
+  };
+
   const getTrendUi = (currentVal: number | null | undefined, compareVal: number | null | undefined, inverseGood = false) => {
     if (compareVal === undefined || compareVal === null || currentVal === undefined || currentVal === null) return <span className="trend-neutral">-</span>;
     const diff = currentVal - compareVal;
@@ -622,15 +627,21 @@ export default function AthleteDashboard() {
                         />
                         <MetricCard
                           icon={<Ruler size={24} />}
-                          title="PVC"
-                          value={formatNumber(currentMetrics.pvc)}
-                          unit="anos"
-                          trend={compareEval ? {
-                            direction: currentMetrics.pvc > (compareMetrics || currentMetrics).pvc ? 'up' : currentMetrics.pvc < (compareMetrics || currentMetrics).pvc ? 'down' : 'neutral',
-                            value: `${formatNumber(Math.abs(currentMetrics.pvc - (compareMetrics || currentMetrics).pvc))} anos`,
+                          title="DPVC"
+                          value={formatDpvc(currentMetrics.dpvc, currentMetrics.hasDpvc)}
+                          unit=""
+                          trend={compareEval && currentMetrics.hasDpvc && (compareMetrics || currentMetrics).hasDpvc ? {
+                            direction: currentMetrics.dpvc > (compareMetrics || currentMetrics).dpvc ? 'up' : currentMetrics.dpvc < (compareMetrics || currentMetrics).dpvc ? 'down' : 'neutral',
+                            value: formatDpvc(Math.abs(currentMetrics.dpvc - (compareMetrics || currentMetrics).dpvc), true),
                             text: 'vs. comparação',
-                            isGood: currentMetrics.pvc > (compareMetrics || currentMetrics).pvc
+                            isGood: currentMetrics.dpvc > (compareMetrics || currentMetrics).dpvc
                           } : undefined}
+                        />
+                        <MetricCard
+                          icon={<Ruler size={24} />}
+                          title="Altura Prevista"
+                          value={currentMetrics.hasDpvc ? currentMetrics.alturaPrevista.toFixed(1).replace('.', ',') : '-'}
+                          unit="cm"
                         />
                       </div>
                     )}
