@@ -12,7 +12,7 @@ export function createDefaultReportSelections(): ReportSelections {
       items: {
         peso: true, altura: true, percentualGordura: true, sumDobras: true,
         gordura: true, mlg: true, ossos: true, massaMuscular: true,
-        relacaoMusculoOsso: true, relacaoMusculoGordura: true, pvc: true
+        relacaoMusculoOsso: true, relacaoMusculoGordura: true, dpvc: true, alturaPrevista: true
       }
     },
     symmetry: {
