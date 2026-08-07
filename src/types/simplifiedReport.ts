@@ -7,6 +7,8 @@ export type SimplifiedReportColumnKey =
   | 'faulkner'
   | 'pollock'
   | 'mediaFP'
+  | 'dpvc'
+  | 'alturaPrevista'
   | 'difCoxa'
   | 'difPantu'
   | 'difBraco';
@@ -29,6 +31,8 @@ export const SIMPLIFIED_REPORT_COLUMNS: SimplifiedReportColumnMeta[] = [
   { key: 'faulkner', label: '% Gordura (Faulkner)', unit: '%', hasAverage: true },
   { key: 'pollock', label: '% Gordura (Pollock)', unit: '%', hasAverage: true },
   { key: 'mediaFP', label: '% Média Pollock/Faulkner', unit: '%', hasAverage: true },
+  { key: 'dpvc', label: 'DPVC', hasAverage: true },
+  { key: 'alturaPrevista', label: 'Altura Prevista', unit: 'cm', hasAverage: true },
   { key: 'difCoxa', label: 'Dif. Coxa D/E', unit: 'cm', hasAverage: false },
   { key: 'difPantu', label: 'Dif. Panturrilha D/E', unit: 'cm', hasAverage: false },
   { key: 'difBraco', label: 'Dif. Braço D/E', unit: 'cm', hasAverage: false }
@@ -44,6 +48,8 @@ export function createDefaultSimplifiedReportSelections(): SimplifiedReportSelec
     faulkner: true,
     pollock: true,
     mediaFP: true,
+    dpvc: true,
+    alturaPrevista: true,
     difCoxa: true,
     difPantu: true,
     difBraco: true
