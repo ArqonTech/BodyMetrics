@@ -36,6 +36,8 @@ interface SimplifiedReportRow {
   faulkner: number;
   pollock: number;
   mediaFP: number;
+  dpvc: number;
+  alturaPrevista: number;
   difCoxa: number;
   difPantu: number;
   difBraco: number;
@@ -191,6 +193,8 @@ export function GroupSimplifiedReportModal({ isOpen, onClose, group, filteredMem
             faulkner: faulknerPct,
             pollock: pollockPct,
             mediaFP,
+            dpvc: base.dpvc,
+            alturaPrevista: base.alturaPrevista,
             difCoxa: base.simetria.coxa.diff,
             difPantu: base.simetria.pantu.diff,
             difBraco: base.simetria.braco.diff
