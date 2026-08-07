@@ -34,6 +34,8 @@ interface SimplifiedReportRow {
   faulkner: number;
   pollock: number;
   mediaFP: number;
+  dpvc: number;
+  alturaPrevista: number;
   difCoxa: number;
   difPantu: number;
   difBraco: number;
@@ -63,6 +65,8 @@ const COLUMN_ICONS: Partial<Record<SimplifiedReportColumnKey, React.ReactNode>> 
   faulkner: <Percent size={14} />,
   pollock: <Percent size={14} />,
   mediaFP: <Percent size={14} />,
+  dpvc: <Ruler size={14} />,
+  alturaPrevista: <Ruler size={14} />,
   difCoxa: <Activity size={14} />,
   difPantu: <Activity size={14} />,
   difBraco: <Activity size={14} />
@@ -78,19 +82,22 @@ function getFatColorKey(pct: number): FatColorKey | null {
   return 'red';
 }
 
-const average = (values: number[]) => {
-  const valid = values.filter(v => Number.isFinite(v) && v > 0);
+const DPVC_KEY: SimplifiedReportColumnKey = 'dpvc';
+
+const average = (values: number[], allowNegative = false) => {
+  const valid = values.filter(v => Number.isFinite(v) && (allowNegative || v > 0));
   if (valid.length === 0) return 0;
   return valid.reduce((acc, v) => acc + v, 0) / valid.length;
 };
 
-const formatNumber = (val: number | undefined, decimals = 1) => {
-  if (val === undefined || val === null || !Number.isFinite(val) || val <= 0) return '-';
+const formatNumber = (val: number | undefined, decimals = 1, allowNegative = false) => {
+  if (val === undefined || val === null || !Number.isFinite(val) || (!allowNegative && val <= 0)) return '-';
   return val.toFixed(decimals).replace('.', ',');
 };
 
 function decimalsFor(key: SimplifiedReportColumnKey) {
-  return key === 'sumDobras' || key === 'altura' || key === 'peso' ? 1 : 2;
+  if (key === 'sumDobras' || key === 'altura' || key === 'peso' || key === 'alturaPrevista') return 1;
+  return 2;
 }
 
 function sanitizeFileName(name: string) {
@@ -222,6 +229,8 @@ export default function GroupSimplifiedReport() {
             faulkner: faulknerPct,
             pollock: pollockPct,
             mediaFP,
+            dpvc: base.dpvc,
+            alturaPrevista: base.alturaPrevista,
             difCoxa: base.simetria.coxa.diff,
             difPantu: base.simetria.pantu.diff,
             difBraco: base.simetria.braco.diff
@@ -287,7 +296,7 @@ export default function GroupSimplifiedReport() {
   const avgValues = useMemo(() => {
     const map: Partial<Record<SimplifiedReportColumnKey, number>> = {};
     avgMetricColumns.forEach(col => {
-      map[col.key] = average(visibleRows.map(r => r[col.key] as number));
+      map[col.key] = average(visibleRows.map(r => r[col.key] as number), col.key === DPVC_KEY);
     });
     return map;
   }, [avgMetricColumns, visibleRows]);
@@ -316,12 +325,13 @@ export default function GroupSimplifiedReport() {
   };
 
   const renderFatCell = (val: number, col: SimplifiedReportColumnMeta) => {
-    const formatted = formatNumber(val, decimalsFor(col.key));
+    const allowNegative = col.key === DPVC_KEY;
+    const formatted = formatNumber(val, decimalsFor(col.key), allowNegative);
     const isFat = FAT_COLUMN_KEYS.includes(col.key);
     const colorKey = isFat ? getFatColorKey(val) : null;
     const unitSuffix = col.unit && formatted !== '-' ? ` ${col.unit}` : '';
     const avgVal = col.hasAverage ? avgValues[col.key] : undefined;
-    const avgFormatted = avgVal !== undefined ? formatNumber(avgVal, decimalsFor(col.key)) : null;
+    const avgFormatted = avgVal !== undefined ? formatNumber(avgVal, decimalsFor(col.key), allowNegative) : null;
     return (
       <span className="sr-cell-numeric-inner">
         <span className={colorKey ? `sr-fat-badge sr-fat-${colorKey}` : ''}>
