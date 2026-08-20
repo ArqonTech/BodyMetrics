@@ -25,3 +25,4 @@ Este arquivo define o contexto e as regras de negócio para a entidade "Grupo" (
 - Quando habilitada, a média é calculada por campo calculável somando os valores válidos dos atletas do grupo e dividindo pela quantidade de atletas com valor válido naquele campo.
 - No relatório individual, a flag de média só aparece quando o atleta pertence a um grupo; a média exibida é a do grupo atual do atleta.
 - A tela de detalhe do grupo permite filtros múltiplos por esporte, categoria e setor; a exportação em grupo deve respeitar exatamente os atletas visíveis após aplicar esses filtros.
+- Na tela de relatório resumido do grupo, a coluna de Atletas (junto com a ação de remoção) é fixada na rolagem horizontal (sticky), mantendo os nomes dos atletas visíveis ao navegar pelas métricas.
