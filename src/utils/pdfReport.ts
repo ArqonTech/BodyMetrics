@@ -12,6 +12,11 @@ function freezeAnimations(clonedDoc: Document) {
   }
   .pdf-hide { visibility: hidden !important; }`;
   clonedDoc.head.appendChild(style);
+
+  const scrollContainers = clonedDoc.querySelectorAll('.sr-table-scroll');
+  scrollContainers.forEach(sc => {
+    sc.scrollLeft = 0;
+  });
 }
 
 export async function generatePdfFromNode(node: HTMLElement): Promise<jsPDF> {
