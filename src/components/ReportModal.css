@@ -430,6 +430,15 @@
   transition: all 0.2s ease;
 }
 
+.report-metric-status {
+  text-align: center;
+  font-size: 7pt;
+  font-weight: 700;
+  color: var(--color-text-muted, #64748b);
+  letter-spacing: 0.05em;
+  margin-top: 6px;
+}
+
 .report-metric-average {
   margin-top: -4px;
   font-size: 6.5pt;

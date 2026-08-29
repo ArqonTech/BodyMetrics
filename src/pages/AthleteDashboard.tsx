@@ -630,6 +630,7 @@ export default function AthleteDashboard() {
                           title="DPVC"
                           value={formatDpvc(currentMetrics.dpvc, currentMetrics.hasDpvc)}
                           unit=""
+                          subtitle={currentMetrics.hasDpvc ? currentMetrics.statusPvc : undefined}
                           trend={compareEval && currentMetrics.hasDpvc && (compareMetrics || currentMetrics).hasDpvc ? {
                             direction: currentMetrics.dpvc > (compareMetrics || currentMetrics).dpvc ? 'up' : currentMetrics.dpvc < (compareMetrics || currentMetrics).dpvc ? 'down' : 'neutral',
                             value: formatDpvc(Math.abs(currentMetrics.dpvc - (compareMetrics || currentMetrics).dpvc), true),

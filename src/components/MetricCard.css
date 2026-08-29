@@ -54,6 +54,13 @@
   color: var(--color-text-muted);
 }
 
+.metric-subtitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-top: 0.75rem;
+}
+
 .metric-status-box {
   display: flex;
   flex-direction: column;
