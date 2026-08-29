@@ -49,6 +49,7 @@ const calculateGroupAverageMetrics = (metricsList: AthleteMetrics[]): AthleteMet
     relacaoMusculoGordura: average(metricsList.map(m => m.relacaoMusculoGordura)),
     dpvc: average(metricsList.map(m => m.dpvc)),
     hasDpvc: metricsList.some(m => m.hasDpvc),
+    statusPvc: '',
     alturaPrevista: average(metricsList.map(m => m.alturaPrevista)),
     simetria: {
       coxa: {
