@@ -203,6 +203,10 @@ export const ReportPaper = forwardRef<HTMLDivElement, ReportPaperProps>(function
                           <span className="report-metric-unit">{m.unit}</span>
                         </div>
 
+                        {m.id === 'dpvc' && !isNA && currentMetrics.statusPvc && (
+                          <div className="report-metric-status">{currentMetrics.statusPvc}</div>
+                        )}
+
                         {avgText && <div className="report-metric-average">{avgText}</div>}
 
                         <div className="report-metric-footer">

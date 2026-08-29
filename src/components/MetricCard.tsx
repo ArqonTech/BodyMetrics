@@ -8,6 +8,7 @@ interface MetricCardProps {
   title: string;
   value: string | number;
   unit: string;
+  subtitle?: string;
   trend?: {
     direction: 'up' | 'down' | 'neutral';
     value: string;
@@ -20,7 +21,7 @@ interface MetricCardProps {
   };
 }
 
-export function MetricCard({ icon, title, value, unit, trend, status }: MetricCardProps) {
+export function MetricCard({ icon, title, value, unit, subtitle, trend, status }: MetricCardProps) {
   const isNA = !value || value === '-' || value === '0,00' || value === 0 || value === '0' || value === '0,0';
 
   return (
@@ -42,6 +43,7 @@ export function MetricCard({ icon, title, value, unit, trend, status }: MetricCa
             <span className="metric-unit">{isNA ? '' : unit}</span>
           </div>
         )}
+        {!status && !isNA && subtitle && <div className="metric-subtitle">{subtitle}</div>}
       </div>
 
       <div className="metric-divider"></div>
