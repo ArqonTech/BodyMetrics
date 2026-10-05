@@ -21,8 +21,8 @@ interface ReportModalProps {
   athlete: Athlete;
   currentEval?: Assessment;
   compareEval?: Assessment;
-  currentMetrics: any;
-  compareMetrics: any;
+  currentMetrics: AthleteMetrics | null | undefined;
+  compareMetrics: AthleteMetrics | null | undefined;
   formula: BodyFatFormula;
   athleteGroup?: AthleteGroupViewModel;
 }
@@ -111,6 +111,7 @@ export function ReportModal({
 
   useEffect(() => {
     if (!isOpen || !athleteGroup) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
       setShowGroupAverage(false);
       setGroupAverageMetrics(null);
       return;

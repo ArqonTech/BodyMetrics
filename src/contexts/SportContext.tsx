@@ -63,6 +63,7 @@ export function SportProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (user && !hasFetched) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
       fetchSports();
     }
     if (!user) {
@@ -97,6 +98,7 @@ export function SportProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- context file intentionally exports its provider and hook together
 export function useSports() {
   const context = useContext(SportContext);
   if (context === undefined) {

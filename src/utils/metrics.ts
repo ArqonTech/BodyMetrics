@@ -248,11 +248,11 @@ export function calculateMetrics(
     },
     relacao: {
       coxa: (circ.kneeRight || 0) > 0 ? ccCoxa / (circ.kneeRight || 0) : 0,
-      pantu: ((circ as any).ankle || 0) > 0 ? ccPantu / ((circ as any).ankle || 0) : 0,
+      pantu: (circ.ankle || 0) > 0 ? ccPantu / (circ.ankle || 0) : 0,
       braco: (circ.wristRight || 0) > 0 ? ccBraco / (circ.wristRight || 0) : 0,
       ccCoxa, ccPantu, ccBraco,
       diamJoelho: circ.kneeRight || 0,
-      diamTornozelo: (circ as any).ankle || 0,
+      diamTornozelo: circ.ankle || 0,
       diamPunho: circ.wristRight || 0
     }
   };

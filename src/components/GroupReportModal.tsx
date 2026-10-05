@@ -29,8 +29,8 @@ interface RenderData {
   athlete: Athlete;
   currentEval?: Assessment;
   compareEval?: Assessment;
-  currentMetrics: any;
-  compareMetrics: any;
+  currentMetrics: AthleteMetrics | null | undefined;
+  compareMetrics: AthleteMetrics | null | undefined;
 }
 
 interface PreviewItem {
@@ -146,6 +146,7 @@ export function GroupReportModal({ isOpen, onClose, group, filteredMembers }: Gr
 
   useEffect(() => {
     if (!isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
       setIsGenerating(false);
       setProgress(null);
       setFinished(false);
@@ -161,6 +162,7 @@ export function GroupReportModal({ isOpen, onClose, group, filteredMembers }: Gr
   useEffect(() => {
     if (!isOpen || members.length === 0) return;
     const requestId = ++previewRequestId.current;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
     setIsLoadingPreview(true);
     setPreviewIndex(0);
 

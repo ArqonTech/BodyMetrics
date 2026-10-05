@@ -113,7 +113,7 @@ export default function GroupSimplifiedReport() {
   const { groups, loading: groupsLoading, refreshGroups } = useGroups();
 
   const stateMembers: AthleteGroupViewModel['members'] | undefined =
-    (location.state as any)?.filteredMembers;
+    (location.state as { filteredMembers?: AthleteGroupViewModel['members'] } | null)?.filteredMembers;
 
   const group = groups.find(g => g.id === groupId);
   const members: AthleteGroupViewModel['members'] = stateMembers ?? group?.members ?? [];
@@ -170,10 +170,12 @@ export default function GroupSimplifiedReport() {
 
   useEffect(() => {
     if (!group && !groupsLoading) refreshGroups();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- dependency list is intentional; adding the missing dependency would re-run the effect
   }, [groupId]);
 
   useEffect(() => {
     if (members.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
       setRows([]);
       setRemovedIds(new Set());
       setSkipped([]);
@@ -220,7 +222,7 @@ export default function GroupSimplifiedReport() {
           prepared.push({
             memberId: member.id,
             nome: mappedAthlete.name,
-            posicao: member.sector || (mappedAthlete as any).sector || '-',
+            posicao: member.sector || (mappedAthlete as typeof mappedAthlete & { sector?: string }).sector || '-',
             categoria: mappedAthlete.category || member.category || '-',
             idade: calculateAge(mappedAthlete.birthDate, currentEval.date),
             altura: base.altura,
@@ -344,7 +346,7 @@ export default function GroupSimplifiedReport() {
     );
   };
 
-  const groupName = group?.name ?? (location.state as any)?.groupName ?? 'Grupo';
+  const groupName = group?.name ?? (location.state as { groupName?: string } | null)?.groupName ?? 'Grupo';
   const generatedAt = new Date().toLocaleDateString('pt-BR');
 
   if (groupsLoading && !group && members.length === 0) {

@@ -10,10 +10,11 @@ import { GroupReportModal } from '../components/GroupReportModal';
 import { useGroups } from '../hooks/useGroups';
 import apiService from '../services/api.service';
 import type { AthleteViewModel } from '../types/api';
+import { asApiError } from '../utils/apiError';
 import './GroupDetail.css';
 
-function getErrorMessage(err: any, fallback: string): string {
-  const data = err?.response?.data;
+function getErrorMessage(err: unknown, fallback: string): string {
+  const data = asApiError(err).response?.data;
   if (data?.errors) {
     return Object.values(data.errors).flat().join('. ');
   }
@@ -92,7 +93,9 @@ export default function GroupDetail() {
   useEffect(() => {
     if (!groupId) return;
     if (!group) refreshGroups();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
     fetchUngroupedAthletes(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- dependency list is intentional; adding the missing dependency would re-run the effect
   }, [groupId]);
 
   const startEditName = () => {

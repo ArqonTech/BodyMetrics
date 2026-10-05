@@ -9,8 +9,8 @@ interface ReportPaperProps {
   athlete: Athlete;
   currentEval?: Assessment;
   compareEval?: Assessment;
-  currentMetrics: any;
-  compareMetrics: any;
+  currentMetrics: AthleteMetrics | null | undefined;
+  compareMetrics: AthleteMetrics | null | undefined;
   formula: string;
   logos: string[];
   selections: ReportSelections;
@@ -36,8 +36,8 @@ const calculateAge = (birthDateStr: string | undefined, evalDateStr: string | un
   return age;
 };
 
-const formatNumber = (val: any) => {
-  if (val === null || val === undefined || isNaN(val) || typeof val !== 'number' || val <= 0) return '-';
+const formatNumber = (val: unknown) => {
+  if (typeof val !== 'number' || isNaN(val) || val <= 0) return '-';
   return val.toFixed(2).replace('.', ',');
 };
 
@@ -77,9 +77,14 @@ const isAnySelected = (selections: ReportSelections, section: keyof ReportSelect
   return Object.values(selections[section].items).some(v => v);
 };
 
+const getSportDetail = (athlete: Athlete) => {
+  const legacy = athlete as Athlete & { position?: string; sector?: string };
+  return legacy.sportObservation || legacy.position || legacy.sector;
+};
+
 const getAverageText = (value?: number, unit?: string) => {
   if (value === undefined || value === null || Number.isNaN(value) || value <= 0) return null;
-  return `Média: ${formatNumber(value)}${unit ? ` ${unit}` : ''}`;
+  return `Média: ${formatNumber(value)}${unit ? `\u00a0${unit}` : ''}`;
 };
 
 export const ReportPaper = forwardRef<HTMLDivElement, ReportPaperProps>(function ReportPaper({
@@ -139,7 +144,7 @@ export const ReportPaper = forwardRef<HTMLDivElement, ReportPaperProps>(function
       <div className="report-athlete-info">
         <div className="info-grid">
           <div className="info-item"><strong>Atleta:</strong> {athlete.name}</div>
-          <div className="info-item"><strong>Esporte:</strong> {(athlete as any).sport || 'Futebol'} {((athlete as any).sportObservation || (athlete as any).position || (athlete as any).sector) && `(${(athlete as any).sportObservation || (athlete as any).position || (athlete as any).sector})`}</div>
+          <div className="info-item"><strong>Esporte:</strong> {athlete.sport || 'Futebol'} {getSportDetail(athlete) && `(${getSportDetail(athlete)})`}</div>
           <div className="info-item"><strong>Categoria:</strong> {athlete.category}</div>
 
           <div className="info-item"><strong>Idade Atual:</strong> {currentAge} anos</div>
@@ -241,7 +246,7 @@ export const ReportPaper = forwardRef<HTMLDivElement, ReportPaperProps>(function
                   { label: 'Coxa', metricKey: 'coxa' as const, data: currentMetrics?.simetria?.coxa },
                   { label: 'Panturrilha', metricKey: 'pantu' as const, data: currentMetrics?.simetria?.pantu },
                   { label: 'Braço', metricKey: 'braco' as const, data: currentMetrics?.simetria?.braco }
-                ].filter(item => (selections.symmetry.items as any)[item.label]).map((item, idx) => {
+                ].filter(item => (selections.symmetry.items)[item.label]).map((item, idx) => {
                   const isD_NA = !item.data?.d || item.data?.d <= 0;
                   const isE_NA = !item.data?.e || item.data?.e <= 0;
                   const isDiff_NA = isD_NA || isE_NA;
@@ -369,7 +374,7 @@ export const ReportPaper = forwardRef<HTMLDivElement, ReportPaperProps>(function
                     mediaKey: 'ccBraco' as const,
                     ossoKey: 'diamPunho' as const
                   }
-                ].filter(item => (selections.relations.items as any)[item.label]).map((item, idx) => {
+                ].filter(item => (selections.relations.items)[item.label]).map((item, idx) => {
                   const isMedia_NA = !item.media || item.media <= 0;
                   const isOsso_NA = !item.osso || item.osso <= 0;
                   const isRel_NA = isMedia_NA || isOsso_NA;
@@ -458,7 +463,7 @@ export const ReportPaper = forwardRef<HTMLDivElement, ReportPaperProps>(function
         { id: 'calfLeft', label: 'Panturrilha Esq.', cur: currentEval?.skinfolds?.calfLeft, cmp: compareEval?.skinfolds?.calfLeft, unit: 'mm' },
         { id: 'iliacCrest', label: 'Crist. ilíaca', cur: currentEval?.skinfolds?.iliacCrest, cmp: compareEval?.skinfolds?.iliacCrest, unit: 'mm' },
         { id: 'supraspinale', label: 'Sup. Espin.', cur: currentEval?.skinfolds?.supraspinale, cmp: compareEval?.skinfolds?.supraspinale, unit: 'mm' }
-      ].filter(item => (selections.skinfolds.items as any)[item.id]))}
+      ].filter(item => (selections.skinfolds.items)[item.id]))}
 
       {isAnySelected(selections, 'circumferences') && renderTableSection('Circunferências', [
         { id: 'shoulder', label: 'Ombro', cur: currentEval?.circumferences?.shoulder, cmp: compareEval?.circumferences?.shoulder, unit: 'cm' },
@@ -474,9 +479,9 @@ export const ReportPaper = forwardRef<HTMLDivElement, ReportPaperProps>(function
         { id: 'calfLeft', label: 'Panturrilha Esq.', cur: currentEval?.circumferences?.calfLeft, cmp: compareEval?.circumferences?.calfLeft, unit: 'cm' },
         { id: 'wristRight', label: 'D. Punho', cur: currentEval?.circumferences?.wristRight, cmp: compareEval?.circumferences?.wristRight, unit: 'cm' },
         { id: 'kneeRight', label: 'D. Joelho', cur: currentEval?.circumferences?.kneeRight, cmp: compareEval?.circumferences?.kneeRight, unit: 'cm' },
-        { id: 'ankle', label: 'D. Tornozelo', cur: (currentEval?.circumferences as any)?.ankle, cmp: (compareEval?.circumferences as any)?.ankle, unit: 'cm' },
-        { id: 'envergadura', label: 'Envergadura', cur: (currentEval?.circumferences as any)?.envergadura, cmp: (compareEval?.circumferences as any)?.envergadura, unit: 'cm' }
-      ].filter(item => (selections.circumferences.items as any)[item.id]))}
+        { id: 'ankle', label: 'D. Tornozelo', cur: currentEval?.circumferences?.ankle, cmp: compareEval?.circumferences?.ankle, unit: 'cm' },
+        { id: 'envergadura', label: 'Envergadura', cur: currentEval?.circumferences?.envergadura, cmp: compareEval?.circumferences?.envergadura, unit: 'cm' }
+      ].filter(item => (selections.circumferences.items)[item.id]))}
 
     </div>
   );

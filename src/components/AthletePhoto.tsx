@@ -1,8 +1,15 @@
 import { User2 } from 'lucide-react';
+import type { CropSettings } from './ImageCropperModal';
 import './AthletePhoto.css';
 
 interface AthletePhotoProps {
-  athlete: any; // Allow flexibility for now
+  athlete: {
+    profilePhoto?: { accessUrl?: string | null } | null;
+    photoUrl?: string;
+    fullName?: string;
+    name?: string;
+    cropSettings?: CropSettings;
+  };
   size?: number;
   className?: string;
 }

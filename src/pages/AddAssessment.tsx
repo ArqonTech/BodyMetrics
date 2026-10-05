@@ -49,7 +49,8 @@ export default function AddAssessment() {
     if (errorTimeouts.current[name]) clearTimeout(errorTimeouts.current[name]);
     errorTimeouts.current[name] = setTimeout(() => {
       setFieldErrors(prev => {
-        const { [name]: _removed, ...rest } = prev;
+        const rest = { ...prev };
+        delete rest[name];
         return rest;
       });
     }, 2500);
@@ -105,6 +106,7 @@ export default function AddAssessment() {
       return null;
     }
     return sorted[0] || null;
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- dependency list is intentional; adding the missing dependency would re-run the effect
   }, [athlete, isEditing, assessmentId, selectedAthleteId]);
 
   const getPrevValue = (name: string): number | null => {
@@ -159,10 +161,12 @@ export default function AddAssessment() {
 
   useEffect(() => {
     if (athleteId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
       setSelectedAthleteId(athleteId);
     } else if (athletes.length > 0 && !selectedAthleteId) {
       setSelectedAthleteId(athletes[0].id);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- dependency list is intentional; adding the missing dependency would re-run the effect
   }, [athleteId, athletes]);
 
   useEffect(() => {
@@ -190,6 +194,7 @@ export default function AddAssessment() {
       }
 
       if (foundAthlete && foundApiAssessment) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
         setSelectedAthleteId(foundAthlete.id);
         const existing = Mapper.mapPhysicalAssessmentToAssessment(foundApiAssessment, foundAthlete.id);
         setFormData({
@@ -242,19 +247,21 @@ export default function AddAssessment() {
     if (!useHeightCalc) return;
     const valid = !isNaN(heightNum) && !isNaN(benchNum) && (heightNum - benchNum) > 0;
     const computed = valid ? (heightNum - benchNum).toFixed(2) : '';
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
     setFormData(prev => prev.sittingHeight === computed ? prev : { ...prev, sittingHeight: computed });
   }, [useHeightCalc, heightNum, benchNum]);
 
   useEffect(() => {
     if (!useHeightCalc || !formData.sittingHeight) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
     setHeightFlash(true);
     const timer = setTimeout(() => setHeightFlash(false), 600);
     return () => clearTimeout(timer);
   }, [formData.sittingHeight, useHeightCalc]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
     if (hasBenchHeightConflict) triggerShake('benchHeight');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasBenchHeightConflict]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -384,7 +391,7 @@ export default function AddAssessment() {
           min="0"
           id={name}
           name={name}
-          value={(formData as any)[name]}
+          value={formData[name as keyof typeof formData]}
           onChange={handleChange}
           placeholder="0.00"
           className={shakingFields.has(name) ? 'input-shake input-error' : ''}

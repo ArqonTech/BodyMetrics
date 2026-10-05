@@ -7,6 +7,7 @@ import type { AthleteSpreadsheetImportViewModel } from '../types/api';
 import { useSports } from '../contexts/SportContext';
 import { useGroups } from '../hooks/useGroups';
 import { SearchableSelect, NEW_OPTION_PREFIX } from './SearchableSelect';
+import { asApiError } from '../utils/apiError';
 import './ImportExcelModal.css';
 
 interface ImportExcelModalProps {
@@ -27,7 +28,7 @@ export const ImportExcelModal: React.FC<ImportExcelModalProps> = ({ isOpen, onCl
   const [sportValue, setSportValue] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importResult, setImportResult] = useState<AthleteSpreadsheetImportViewModel | null>(null);
-  const [previewData, setPreviewData] = useState<{ headers: string[], rows: any[] } | null>(null);
+  const [previewData, setPreviewData] = useState<{ headers: string[], rows: Record<string, unknown>[] } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -37,6 +38,7 @@ export const ImportExcelModal: React.FC<ImportExcelModalProps> = ({ isOpen, onCl
     if (isOpen) {
       refreshSports();
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
       setSelectedFile(null);
       setError(null);
       setSuccess(false);
@@ -48,6 +50,7 @@ export const ImportExcelModal: React.FC<ImportExcelModalProps> = ({ isOpen, onCl
         fileInputRef.current.value = '';
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- dependency list is intentional; adding the missing dependency would re-run the effect
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -64,7 +67,7 @@ export const ImportExcelModal: React.FC<ImportExcelModalProps> = ({ isOpen, onCl
         const workbook = XLSX.read(data, { type: 'binary', cellDates: true });
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-        const rows = XLSX.utils.sheet_to_json<any>(worksheet, { defval: '', range: 0 });
+        const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, { defval: '', range: 0 });
         
         if (rows.length > 0) {
           const headers = Object.keys(rows[0]);
@@ -129,8 +132,9 @@ export const ImportExcelModal: React.FC<ImportExcelModalProps> = ({ isOpen, onCl
         if (onSuccess) onSuccess();
       }, 3000);
 
-    } catch (err: any) {
-      const data = err.response?.data;
+    } catch (err) {
+      const apiError = asApiError(err);
+      const data = apiError.response?.data;
       let msg = "Ocorreu um erro ao salvar os dados.";
       
       if (data?.errors) {

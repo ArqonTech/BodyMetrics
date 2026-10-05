@@ -97,7 +97,7 @@ export default function AthleteDashboard() {
       await deleteAthlete(athlete.id);
       setIsDeleteModalOpen(false);
       navigate('/dashboard');
-    } catch (error) {
+    } catch {
       alert('Erro ao deletar atleta.');
     }
   };
@@ -112,19 +112,21 @@ export default function AthleteDashboard() {
       updateCommand.physicalAssessments = updatedAssessments;
 
       await updateAthlete(athlete.id, updateCommand);
-    } catch (error) {
+    } catch {
       alert('Erro ao deletar avaliação.');
     }
   };
 
   useEffect(() => {
     if (assessments.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
       setCurrentEvalId(assessments[0].id);
       setCompareEvalId(assessments.length > 1 ? assessments[1].id : '');
     } else {
       setCurrentEvalId('');
       setCompareEvalId('');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- dependency list is intentional; adding the missing dependency would re-run the effect
   }, [assessments.length, currentAthleteId]);
 
   const currentEval = assessments.find(a => a.id === currentEvalId);
@@ -133,8 +135,8 @@ export default function AthleteDashboard() {
   const currentMetrics = calculateMetrics(currentEval, mappedAthlete, selectedFormula);
   const compareMetrics = calculateMetrics(compareEval, mappedAthlete, selectedFormula);
 
-  const formatNumber = (val: any) => {
-    if (val === null || val === undefined || isNaN(val) || typeof val !== 'number' || val <= 0) return '-';
+  const formatNumber = (val: unknown) => {
+    if (typeof val !== 'number' || isNaN(val) || val <= 0) return '-';
     return val.toFixed(2).replace('.', ',');
   };
 

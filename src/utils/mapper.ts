@@ -2,11 +2,13 @@ import * as ApiTypes from '../types/api';
 import type { Athlete } from '../types/athlete';
 import type { Assessment } from '../types/assessment';
 
-export const mapOldToNewAthlete = (athlete: Partial<Athlete>): Partial<ApiTypes.CreateAthleteCommand> => {
+type LegacyAthleteFields = Partial<Athlete> & { sportId?: string; position?: string; sector?: string };
+
+export const mapOldToNewAthlete = (athlete: LegacyAthleteFields): Partial<ApiTypes.CreateAthleteCommand> => {
   return {
     fullName: athlete.name,
-    sportId: (athlete as any).sportId || '', // Precisamos garantir que temos o ID
-    sector: (athlete as any).sportObservation || (athlete as any).position || (athlete as any).sector || '',
+    sportId: athlete.sportId || '', // Precisamos garantir que temos o ID
+    sector: athlete.sportObservation || athlete.position || athlete.sector || '',
     phase: mapPhase(athlete.competitivePhase),
     category: athlete.category || '',
     sex: mapSex(athlete.gender),

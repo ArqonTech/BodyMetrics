@@ -91,8 +91,8 @@ export function AssessmentListModal({
         {renderDetail('Pantu. E.', fmt(c?.calfLeft))}
         {renderDetail('D. Punho', fmt(c?.wristRight))}
         {renderDetail('D. Joelho', fmt(c?.kneeRight))}
-        {renderDetail('D. Tornozelo', fmt((c as any)?.ankle))}
-        {renderDetail('Envergadura', fmt((c as any)?.envergadura))}
+        {renderDetail('D. Tornozelo', fmt(c?.ankle))}
+        {renderDetail('Envergadura', fmt(c?.envergadura))}
       </div>
     </div>
   );
