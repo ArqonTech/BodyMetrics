@@ -121,7 +121,9 @@ export const mapAssessmentToPhysicalAssessment = (assessment: Assessment): ApiTy
       rightThighMm: assessment.skinfolds.thighRight,
       leftThighMm: assessment.skinfolds.thighLeft,
       rightCalfMm: assessment.skinfolds.calfRight,
-      leftCalfMm: assessment.skinfolds.calfLeft
+      leftCalfMm: assessment.skinfolds.calfLeft,
+      iliacCrestMm: assessment.skinfolds.iliacCrest ?? 0,
+      supraspinaleMm: assessment.skinfolds.supraspinale ?? 0
     } : null,
     circumferences: assessment.circumferences ? {
       shoulderCm: assessment.circumferences.shoulder,
@@ -162,9 +164,11 @@ export const mapPhysicalAssessmentToAssessment = (pa: ApiTypes.PhysicalAssessmen
       thighRight: pa.skinfolds.rightThighMm,
       thighLeft: pa.skinfolds.leftThighMm,
       calfRight: pa.skinfolds.rightCalfMm,
-      calfLeft: pa.skinfolds.leftCalfMm
+      calfLeft: pa.skinfolds.leftCalfMm,
+      iliacCrest: pa.skinfolds.iliacCrestMm ?? 0,
+      supraspinale: pa.skinfolds.supraspinaleMm ?? 0
     } : {
-      tricepsRight: 0, tricepsLeft: 0, subscapular: 0, chest: 0, midaxillary: 0, suprailiac: 0, abdominal: 0, thighRight: 0, thighLeft: 0, calfRight: 0, calfLeft: 0
+      tricepsRight: 0, tricepsLeft: 0, subscapular: 0, chest: 0, midaxillary: 0, suprailiac: 0, abdominal: 0, thighRight: 0, thighLeft: 0, calfRight: 0, calfLeft: 0, iliacCrest: 0, supraspinale: 0
     },
     circumferences: pa.circumferences ? {
       shoulder: pa.circumferences.shoulderCm,

@@ -18,7 +18,7 @@ import {
   FileSpreadsheet, ClipboardList, Users, X, Check
 } from 'lucide-react';
 import * as Mapper from '../utils/mapper';
-import { calculateMetrics } from '../utils/metrics';
+import { calculateMetrics, type BodyFatFormula } from '../utils/metrics';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import './AthleteDashboard.css';
 
@@ -41,7 +41,7 @@ export default function AthleteDashboard() {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [athlete]);
 
-  const [selectedFormula, setSelectedFormula] = useLocalStorage<'pollock' | 'faulkner'>(
+  const [selectedFormula, setSelectedFormula] = useLocalStorage<BodyFatFormula>(
     '@BodyMetrics:selectedFormula',
     'pollock'
   );
@@ -477,11 +477,12 @@ export default function AthleteDashboard() {
                           <span className="eval-label">FÓRMULA %G</span>
                           <select
                             value={selectedFormula}
-                            onChange={e => setSelectedFormula(e.target.value as 'pollock' | 'faulkner')}
+                            onChange={e => setSelectedFormula(e.target.value as BodyFatFormula)}
                             className="eval-select"
                           >
                             <option value="pollock">Pollock</option>
                             <option value="faulkner">Faulkner</option>
+                            <option value="slaughter">Slaughter</option>
                           </select>
                         </div>
                       </div>
@@ -670,7 +671,9 @@ export default function AthleteDashboard() {
                           { label: 'Coxa Dir.', cur: currentEval?.skinfolds?.thighRight, cmp: compareEval?.skinfolds?.thighRight, unit: 'mm', inverseGood: true },
                           { label: 'Coxa Esq.', cur: currentEval?.skinfolds?.thighLeft, cmp: compareEval?.skinfolds?.thighLeft, unit: 'mm', inverseGood: true },
                           { label: 'Panturrilha Dir.', cur: currentEval?.skinfolds?.calfRight, cmp: compareEval?.skinfolds?.calfRight, unit: 'mm', inverseGood: true },
-                          { label: 'Panturrilha Esq.', cur: currentEval?.skinfolds?.calfLeft, cmp: compareEval?.skinfolds?.calfLeft, unit: 'mm', inverseGood: true }
+                          { label: 'Panturrilha Esq.', cur: currentEval?.skinfolds?.calfLeft, cmp: compareEval?.skinfolds?.calfLeft, unit: 'mm', inverseGood: true },
+                          { label: 'Crist. ilíaca', cur: currentEval?.skinfolds?.iliacCrest, cmp: compareEval?.skinfolds?.iliacCrest, unit: 'mm', inverseGood: true },
+                          { label: 'Sup. Espin.', cur: currentEval?.skinfolds?.supraspinale, cmp: compareEval?.skinfolds?.supraspinale, unit: 'mm', inverseGood: true }
                         ])}
 
                         {activeTab === 'circunferencias' && renderTableContent([

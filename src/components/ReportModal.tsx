@@ -10,7 +10,7 @@ import { createDefaultReportSelections } from '../types/report';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { generatePdfFromNode } from '../utils/pdfReport';
 import { calculateMetrics } from '../utils/metrics';
-import type { AthleteMetrics } from '../utils/metrics';
+import type { AthleteMetrics, BodyFatFormula } from '../utils/metrics';
 import * as Mapper from '../utils/mapper';
 import apiService from '../services/api.service';
 import './ReportModal.css';
@@ -23,7 +23,7 @@ interface ReportModalProps {
   compareEval?: Assessment;
   currentMetrics: any;
   compareMetrics: any;
-  formula: 'pollock' | 'faulkner';
+  formula: BodyFatFormula;
   athleteGroup?: AthleteGroupViewModel;
 }
 

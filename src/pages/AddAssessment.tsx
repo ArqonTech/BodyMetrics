@@ -76,7 +76,7 @@ export default function AddAssessment() {
     midaxillary: '', suprailiac: '',
     abdominal: '', thighRightSkinfold: '',
     thighLeftSkinfold: '', calfRightSkinfold: '',
-    calfLeftSkinfold: '',
+    calfLeftSkinfold: '', iliacCrest: '', supraspinale: '',
 
     // Circunferencias
     shoulder: '', chest: '',
@@ -125,6 +125,8 @@ export default function AddAssessment() {
       case 'thighLeftSkinfold': return previousAssessment.skinfolds?.thighLeft ?? null;
       case 'calfRightSkinfold': return previousAssessment.skinfolds?.calfRight ?? null;
       case 'calfLeftSkinfold': return previousAssessment.skinfolds?.calfLeft ?? null;
+      case 'iliacCrest': return previousAssessment.skinfolds?.iliacCrest ?? null;
+      case 'supraspinale': return previousAssessment.skinfolds?.supraspinale ?? null;
       // circunferências
       case 'shoulder': return previousAssessment.circumferences?.shoulder ?? null;
       case 'chest': return previousAssessment.circumferences?.chest ?? null;
@@ -208,6 +210,8 @@ export default function AddAssessment() {
           thighLeftSkinfold: existing.skinfolds?.thighLeft?.toString() || '',
           calfRightSkinfold: existing.skinfolds?.calfRight?.toString() || '',
           calfLeftSkinfold: existing.skinfolds?.calfLeft?.toString() || '',
+          iliacCrest: existing.skinfolds?.iliacCrest?.toString() || '',
+          supraspinale: existing.skinfolds?.supraspinale?.toString() || '',
 
           shoulder: existing.circumferences?.shoulder?.toString() || '',
           chest: existing.circumferences?.chest?.toString() || '',
@@ -323,7 +327,9 @@ export default function AddAssessment() {
           rightThighMm: parseNum(formData.thighRightSkinfold),
           leftThighMm: parseNum(formData.thighLeftSkinfold),
           rightCalfMm: parseNum(formData.calfRightSkinfold),
-          leftCalfMm: parseNum(formData.calfLeftSkinfold)
+          leftCalfMm: parseNum(formData.calfLeftSkinfold),
+          iliacCrestMm: parseNum(formData.iliacCrest),
+          supraspinaleMm: parseNum(formData.supraspinale)
         },
         circumferences: {
           shoulderCm: parseNum(formData.shoulder),
@@ -571,6 +577,8 @@ export default function AddAssessment() {
               {renderInput('thighLeftSkinfold', 'Coxa Esq.', 'mm')}
               {renderInput('calfRightSkinfold', 'Panturrilha Dir.', 'mm')}
               {renderInput('calfLeftSkinfold', 'Panturrilha Esq.', 'mm')}
+              {renderInput('iliacCrest', 'Crist. ilíaca', 'mm')}
+              {renderInput('supraspinale', 'Sup. Espin.', 'mm')}
             </div>
           </Card>
 

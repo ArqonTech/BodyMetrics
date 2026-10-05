@@ -148,7 +148,7 @@ export const ReportPaper = forwardRef<HTMLDivElement, ReportPaperProps>(function
 
           <div className="info-item"><strong>Raça / Etnia:</strong> {athlete.race || '-'}</div>
           <div className="info-item"><strong>Alt. Sentado:</strong> {currentEval?.sittingHeight ? `${currentEval.sittingHeight} cm` : '-'}</div>
-          <div className="info-item"><strong>Fórmula:</strong> {formula === 'pollock' ? 'Pollock 7 Dobras' : 'Faulkner'}</div>
+          <div className="info-item"><strong>Fórmula:</strong> {formula === 'pollock' ? 'Pollock 7 Dobras' : formula === 'slaughter' ? 'Slaughter' : 'Faulkner'}</div>
         </div>
       </div>
 
@@ -456,7 +456,9 @@ export const ReportPaper = forwardRef<HTMLDivElement, ReportPaperProps>(function
         { id: 'thighRight', label: 'Coxa Dir.', cur: currentEval?.skinfolds?.thighRight, cmp: compareEval?.skinfolds?.thighRight, unit: 'mm' },
         { id: 'thighLeft', label: 'Coxa Esq.', cur: currentEval?.skinfolds?.thighLeft, cmp: compareEval?.skinfolds?.thighLeft, unit: 'mm' },
         { id: 'calfRight', label: 'Panturrilha Dir.', cur: currentEval?.skinfolds?.calfRight, cmp: compareEval?.skinfolds?.calfRight, unit: 'mm' },
-        { id: 'calfLeft', label: 'Panturrilha Esq.', cur: currentEval?.skinfolds?.calfLeft, cmp: compareEval?.skinfolds?.calfLeft, unit: 'mm' }
+        { id: 'calfLeft', label: 'Panturrilha Esq.', cur: currentEval?.skinfolds?.calfLeft, cmp: compareEval?.skinfolds?.calfLeft, unit: 'mm' },
+        { id: 'iliacCrest', label: 'Crist. ilíaca', cur: currentEval?.skinfolds?.iliacCrest, cmp: compareEval?.skinfolds?.iliacCrest, unit: 'mm' },
+        { id: 'supraspinale', label: 'Sup. Espin.', cur: currentEval?.skinfolds?.supraspinale, cmp: compareEval?.skinfolds?.supraspinale, unit: 'mm' }
       ].filter(item => (selections.skinfolds.items as any)[item.id]))}
 
       {isAnySelected(selections, 'circumferences') && renderTableSection('Circunferências', [

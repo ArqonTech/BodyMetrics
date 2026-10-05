@@ -69,6 +69,8 @@ export function AssessmentListModal({
         {renderDetail('Coxa E.', fmt(sf?.thighLeft))}
         {renderDetail('Pantu. D.', fmt(sf?.calfRight))}
         {renderDetail('Pantu. E.', fmt(sf?.calfLeft))}
+        {renderDetail('Crist. ilíaca', fmt(sf?.iliacCrest))}
+        {renderDetail('Sup. Espin.', fmt(sf?.supraspinale))}
       </div>
     </div>
   );

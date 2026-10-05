@@ -17,6 +17,8 @@ export interface Assessment {
     thighLeft: number;
     calfRight: number;
     calfLeft: number;
+    iliacCrest?: number;
+    supraspinale?: number;
   };
   circumferences: {
     shoulder: number;

@@ -25,7 +25,8 @@ export function createDefaultReportSelections(): ReportSelections {
       items: {
         tricepsRight: true, tricepsLeft: true, subscapular: true, chest: true,
         midaxillary: true, suprailiac: true, abdominal: true, thighRight: true,
-        thighLeft: true, calfRight: true, calfLeft: true
+        thighLeft: true, calfRight: true, calfLeft: true,
+        iliacCrest: true, supraspinale: true
       }
     },
     circumferences: {

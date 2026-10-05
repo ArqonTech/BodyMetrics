@@ -67,6 +67,8 @@ export interface Skinfolds {
   leftThighMm: number;
   rightCalfMm: number;
   leftCalfMm: number;
+  iliacCrestMm?: number;
+  supraspinaleMm?: number;
 }
 
 export interface Circumferences {
