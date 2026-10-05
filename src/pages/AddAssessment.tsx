@@ -73,7 +73,7 @@ export default function AddAssessment() {
     // Dobras
     tricepsRight: '', tricepsLeft: '',
     subscapular: '', chestSkinfold: '',
-    midaxillary: '', suprailiac: '',
+    midaxillary: '',
     abdominal: '', thighRightSkinfold: '',
     thighLeftSkinfold: '', calfRightSkinfold: '',
     calfLeftSkinfold: '', iliacCrest: '', supraspinale: '',
@@ -119,7 +119,6 @@ export default function AddAssessment() {
       case 'subscapular': return previousAssessment.skinfolds?.subscapular ?? null;
       case 'chestSkinfold': return previousAssessment.skinfolds?.chest ?? null;
       case 'midaxillary': return previousAssessment.skinfolds?.midaxillary ?? null;
-      case 'suprailiac': return previousAssessment.skinfolds?.suprailiac ?? null;
       case 'abdominal': return previousAssessment.skinfolds?.abdominal ?? null;
       case 'thighRightSkinfold': return previousAssessment.skinfolds?.thighRight ?? null;
       case 'thighLeftSkinfold': return previousAssessment.skinfolds?.thighLeft ?? null;
@@ -204,7 +203,6 @@ export default function AddAssessment() {
           subscapular: existing.skinfolds?.subscapular?.toString() || '',
           chestSkinfold: existing.skinfolds?.chest?.toString() || '',
           midaxillary: existing.skinfolds?.midaxillary?.toString() || '',
-          suprailiac: existing.skinfolds?.suprailiac?.toString() || '',
           abdominal: existing.skinfolds?.abdominal?.toString() || '',
           thighRightSkinfold: existing.skinfolds?.thighRight?.toString() || '',
           thighLeftSkinfold: existing.skinfolds?.thighLeft?.toString() || '',
@@ -322,7 +320,6 @@ export default function AddAssessment() {
           subscapularMm: parseNum(formData.subscapular),
           thoraxMm: parseNum(formData.chestSkinfold),
           subaxillaryMm: parseNum(formData.midaxillary),
-          suprailiacMm: parseNum(formData.suprailiac),
           abdominalMm: parseNum(formData.abdominal),
           rightThighMm: parseNum(formData.thighRightSkinfold),
           leftThighMm: parseNum(formData.thighLeftSkinfold),
@@ -571,7 +568,6 @@ export default function AddAssessment() {
               {renderInput('subscapular', 'Subescapular', 'mm')}
               {renderInput('chestSkinfold', 'Tórax', 'mm')}
               {renderInput('midaxillary', 'Subaxilar', 'mm')}
-              {renderInput('suprailiac', 'Supra-ilíaca', 'mm')}
               {renderInput('abdominal', 'Abdominal', 'mm')}
               {renderInput('thighRightSkinfold', 'Coxa Dir.', 'mm')}
               {renderInput('thighLeftSkinfold', 'Coxa Esq.', 'mm')}

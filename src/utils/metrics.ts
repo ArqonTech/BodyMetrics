@@ -117,7 +117,6 @@ export function calculateMetrics(
     (sf.subscapular || 0) +
     (sf.chest || 0) +
     (sf.midaxillary || 0) +
-    (sf.suprailiac || 0) +
     (sf.abdominal || 0) +
     (sf.thighRight || 0) +
     (sf.iliacCrest || 0) +
@@ -131,7 +130,7 @@ export function calculateMetrics(
   }
 
   // Formula de Faulkner
-  const faulknerSum = (sf.tricepsRight || 0) + (sf.subscapular || 0) + (sf.suprailiac || 0) + (sf.abdominal || 0);
+  const faulknerSum = (sf.tricepsRight || 0) + (sf.subscapular || 0) + (sf.iliacCrest || 0) + (sf.abdominal || 0);
   const faulkner = faulknerSum > 0 ? (faulknerSum * 0.153) + 5.783 : 0;
 
   // Formula de Slaughter (tríceps + subescapular), por sexo

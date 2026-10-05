@@ -11,7 +11,6 @@ export interface Assessment {
     subscapular: number;
     chest: number;
     midaxillary: number;
-    suprailiac: number;
     abdominal: number;
     thighRight: number;
     thighLeft: number;

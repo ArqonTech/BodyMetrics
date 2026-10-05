@@ -61,7 +61,6 @@ export interface Skinfolds {
   subscapularMm: number;
   thoraxMm: number;
   subaxillaryMm: number;
-  suprailiacMm: number;
   abdominalMm: number;
   rightThighMm: number;
   leftThighMm: number;

@@ -63,7 +63,6 @@ export function AssessmentListModal({
         {renderDetail('Subescapular', fmt(sf?.subscapular))}
         {renderDetail('Tórax', fmt(sf?.chest))}
         {renderDetail('Subaxilar', fmt(sf?.midaxillary))}
-        {renderDetail('Supra-ilíaca', fmt(sf?.suprailiac))}
         {renderDetail('Abdominal', fmt(sf?.abdominal))}
         {renderDetail('Coxa D.', fmt(sf?.thighRight))}
         {renderDetail('Coxa E.', fmt(sf?.thighLeft))}

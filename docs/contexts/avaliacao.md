@@ -8,7 +8,7 @@ Representa um conjunto de medições antropométricas realizadas em um atleta em
 - **athleteId**: ID do atleta a quem a avaliação pertence.
 - **date**: Data em que a avaliação foi realizada.
 - **Medidas Básicas**: Peso (kg), Altura (cm) e Altura Sentado (cm).
-- **Dobras Cutâneas (mm)**: Tríceps D, Tríceps E, Subescapular, Tórax, Subaxilar, Supra-ilíaca, Abdominal, Coxa D, Coxa E, Panturrilha D, Panturrilha E, Crista ilíaca (`iliacCrest`), Supraespinal (`supraspinale`).
+- **Dobras Cutâneas (mm)**: Tríceps D, Tríceps E, Subescapular, Tórax, Subaxilar, Abdominal, Coxa D, Coxa E, Panturrilha D, Panturrilha E, Crista ilíaca (`iliacCrest`), Supraespinal (`supraspinale`).
 - **Circunferências (cm)**: Ombro, Peitoral, Braço D, Braço E, Cintura, Quadril, Medial D, Medial E, Panturrilha D, Panturrilha E, Diâmetro Punho, Diâmetro Joelho.
 
 ## Fórmulas Utilizadas (Dashboard)
@@ -17,8 +17,9 @@ Ao comparar avaliações ou visualizar os dados atuais, as seguintes fórmulas s
 - **Gordura (kg)**: `(Peso * Percentual de Gordura) / 100`
 - **Massa Livre de Gordura (MLG em kg)**: `Peso - Gordura - Ossos`
 - **Massa Muscular (kg)**: `(Altura / 100) * ((0.00744 * (Relação M/O Braço^2)) + (0.00088 * (Circunferência Braço Corrigida^2)) + (0.00441 * (Tornozelo^2))) + (2.4 * Sexo) - (0.048 * Idade) + Raça + 7.8` onde Relação M/O Braço é `Circunferência Braço Corrigida / Diâmetro Punho`, Sexo é 1 para masculino e 0 para feminino, Raça é 0 para branco, 1.1 para negro e -2 para asiático, e Tornozelo é o valor registrado de circunferência/diâmetro do tornozelo. Esse valor só deve ser calculado quando existir ao menos um insumo válido da própria fórmula.
-- **Somatório de Dobras**: Tríceps D/E, Subescapular, Tórax, Subaxilar, Supra-ilíaca, Abdominal, Coxa D, Crista ilíaca e Supraespinal (usado no Pollock).
+- **Somatório de Dobras**: Tríceps D/E, Subescapular, Tórax, Subaxilar, Abdominal, Coxa D, Crista ilíaca e Supraespinal (usado no Pollock).
 - **Percentual de Gordura (%)**: O usuário deve poder escolher entre Pollock, Faulkner ou Slaughter.
+  - Faulkner: `(Tríceps D + Subescapular + Crista ilíaca + Abdominal) * 0.153 + 5.783`.
   - Slaughter: `S = Tríceps D + Subescapular`. Homem: `S<=35 ? 1.21*S - 0.008*S² - 1.7 : 0.783*S + 1.6`. Mulher: `S<=35 ? 1.33*S - 0.013*S² - 2.5 : 0.546*S + 9.7`. Arredondado a 2 casas. Não usa estágio maturacional nem raça.
 - **Relação Massa Muscular-Ossos**: `MLG / Ossos` (índice adimensional).
 - **Relação Massa Muscular-Gordura**: `Massa Muscular / Gordura` (índice adimensional).
