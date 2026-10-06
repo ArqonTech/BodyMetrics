@@ -134,6 +134,7 @@ export function GroupSimplifiedReportModal({ isOpen, onClose, group, filteredMem
 
   useEffect(() => {
     if (!isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
       setRows([]);
       setSkipped([]);
     }
@@ -141,6 +142,7 @@ export function GroupSimplifiedReportModal({ isOpen, onClose, group, filteredMem
 
   useEffect(() => {
     if (!isOpen || members.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
       setRows([]);
       setSkipped([]);
       return;

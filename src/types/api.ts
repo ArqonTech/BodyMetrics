@@ -61,12 +61,13 @@ export interface Skinfolds {
   subscapularMm: number;
   thoraxMm: number;
   subaxillaryMm: number;
-  suprailiacMm: number;
   abdominalMm: number;
   rightThighMm: number;
   leftThighMm: number;
   rightCalfMm: number;
   leftCalfMm: number;
+  iliacCrestMm?: number;
+  supraspinaleMm?: number;
 }
 
 export interface Circumferences {

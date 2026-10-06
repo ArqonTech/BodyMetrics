@@ -11,12 +11,13 @@ export interface Assessment {
     subscapular: number;
     chest: number;
     midaxillary: number;
-    suprailiac: number;
     abdominal: number;
     thighRight: number;
     thighLeft: number;
     calfRight: number;
     calfLeft: number;
+    iliacCrest?: number;
+    supraspinale?: number;
   };
   circumferences: {
     shoulder: number;

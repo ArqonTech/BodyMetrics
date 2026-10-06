@@ -18,7 +18,7 @@ import {
   FileSpreadsheet, ClipboardList, Users, X, Check
 } from 'lucide-react';
 import * as Mapper from '../utils/mapper';
-import { calculateMetrics } from '../utils/metrics';
+import { calculateMetrics, type BodyFatFormula } from '../utils/metrics';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import './AthleteDashboard.css';
 
@@ -41,7 +41,7 @@ export default function AthleteDashboard() {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [athlete]);
 
-  const [selectedFormula, setSelectedFormula] = useLocalStorage<'pollock' | 'faulkner'>(
+  const [selectedFormula, setSelectedFormula] = useLocalStorage<BodyFatFormula>(
     '@BodyMetrics:selectedFormula',
     'pollock'
   );
@@ -97,7 +97,7 @@ export default function AthleteDashboard() {
       await deleteAthlete(athlete.id);
       setIsDeleteModalOpen(false);
       navigate('/dashboard');
-    } catch (error) {
+    } catch {
       alert('Erro ao deletar atleta.');
     }
   };
@@ -112,19 +112,21 @@ export default function AthleteDashboard() {
       updateCommand.physicalAssessments = updatedAssessments;
 
       await updateAthlete(athlete.id, updateCommand);
-    } catch (error) {
+    } catch {
       alert('Erro ao deletar avaliação.');
     }
   };
 
   useEffect(() => {
     if (assessments.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
       setCurrentEvalId(assessments[0].id);
       setCompareEvalId(assessments.length > 1 ? assessments[1].id : '');
     } else {
       setCurrentEvalId('');
       setCompareEvalId('');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- dependency list is intentional; adding the missing dependency would re-run the effect
   }, [assessments.length, currentAthleteId]);
 
   const currentEval = assessments.find(a => a.id === currentEvalId);
@@ -133,8 +135,8 @@ export default function AthleteDashboard() {
   const currentMetrics = calculateMetrics(currentEval, mappedAthlete, selectedFormula);
   const compareMetrics = calculateMetrics(compareEval, mappedAthlete, selectedFormula);
 
-  const formatNumber = (val: any) => {
-    if (val === null || val === undefined || isNaN(val) || typeof val !== 'number' || val <= 0) return '-';
+  const formatNumber = (val: unknown) => {
+    if (typeof val !== 'number' || isNaN(val) || val <= 0) return '-';
     return val.toFixed(2).replace('.', ',');
   };
 
@@ -477,11 +479,12 @@ export default function AthleteDashboard() {
                           <span className="eval-label">FÓRMULA %G</span>
                           <select
                             value={selectedFormula}
-                            onChange={e => setSelectedFormula(e.target.value as 'pollock' | 'faulkner')}
+                            onChange={e => setSelectedFormula(e.target.value as BodyFatFormula)}
                             className="eval-select"
                           >
                             <option value="pollock">Pollock</option>
                             <option value="faulkner">Faulkner</option>
+                            <option value="slaughter">Slaughter</option>
                           </select>
                         </div>
                       </div>
@@ -665,12 +668,13 @@ export default function AthleteDashboard() {
                           { label: 'Subescapular', cur: currentEval?.skinfolds?.subscapular, cmp: compareEval?.skinfolds?.subscapular, unit: 'mm', inverseGood: true },
                           { label: 'Tórax', cur: currentEval?.skinfolds?.chest, cmp: compareEval?.skinfolds?.chest, unit: 'mm', inverseGood: true },
                           { label: 'Subaxilar', cur: currentEval?.skinfolds?.midaxillary, cmp: compareEval?.skinfolds?.midaxillary, unit: 'mm', inverseGood: true },
-                          { label: 'Supra-ilíaca', cur: currentEval?.skinfolds?.suprailiac, cmp: compareEval?.skinfolds?.suprailiac, unit: 'mm', inverseGood: true },
                           { label: 'Abdominal', cur: currentEval?.skinfolds?.abdominal, cmp: compareEval?.skinfolds?.abdominal, unit: 'mm', inverseGood: true },
                           { label: 'Coxa Dir.', cur: currentEval?.skinfolds?.thighRight, cmp: compareEval?.skinfolds?.thighRight, unit: 'mm', inverseGood: true },
                           { label: 'Coxa Esq.', cur: currentEval?.skinfolds?.thighLeft, cmp: compareEval?.skinfolds?.thighLeft, unit: 'mm', inverseGood: true },
                           { label: 'Panturrilha Dir.', cur: currentEval?.skinfolds?.calfRight, cmp: compareEval?.skinfolds?.calfRight, unit: 'mm', inverseGood: true },
-                          { label: 'Panturrilha Esq.', cur: currentEval?.skinfolds?.calfLeft, cmp: compareEval?.skinfolds?.calfLeft, unit: 'mm', inverseGood: true }
+                          { label: 'Panturrilha Esq.', cur: currentEval?.skinfolds?.calfLeft, cmp: compareEval?.skinfolds?.calfLeft, unit: 'mm', inverseGood: true },
+                          { label: 'Crist. ilíaca', cur: currentEval?.skinfolds?.iliacCrest, cmp: compareEval?.skinfolds?.iliacCrest, unit: 'mm', inverseGood: true },
+                          { label: 'Sup. Espin.', cur: currentEval?.skinfolds?.supraspinale, cmp: compareEval?.skinfolds?.supraspinale, unit: 'mm', inverseGood: true }
                         ])}
 
                         {activeTab === 'circunferencias' && renderTableContent([

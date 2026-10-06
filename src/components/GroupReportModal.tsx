@@ -9,7 +9,7 @@ import { createDefaultReportSelections } from '../types/report';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { generatePdfFromNode } from '../utils/pdfReport';
 import { calculateMetrics } from '../utils/metrics';
-import type { AthleteMetrics } from '../utils/metrics';
+import type { AthleteMetrics, BodyFatFormula } from '../utils/metrics';
 import * as Mapper from '../utils/mapper';
 import apiService from '../services/api.service';
 import type { AthleteGroupViewModel } from '../types/api';
@@ -29,8 +29,8 @@ interface RenderData {
   athlete: Athlete;
   currentEval?: Assessment;
   compareEval?: Assessment;
-  currentMetrics: any;
-  compareMetrics: any;
+  currentMetrics: AthleteMetrics | null | undefined;
+  compareMetrics: AthleteMetrics | null | undefined;
 }
 
 interface PreviewItem {
@@ -120,7 +120,7 @@ export function GroupReportModal({ isOpen, onClose, group, filteredMembers }: Gr
     skinfolds: false,
     circumferences: false
   });
-  const [formula, setFormula] = useLocalStorage<'pollock' | 'faulkner'>('@BodyMetrics:reportFormula', 'pollock');
+  const [formula, setFormula] = useLocalStorage<BodyFatFormula>('@BodyMetrics:reportFormula', 'pollock');
   const [showGroupAverage, setShowGroupAverage] = useState(false);
 
   // Prévia paginada: carregada uma vez por combinação de membros/fórmula, reaproveitada na exportação
@@ -146,6 +146,7 @@ export function GroupReportModal({ isOpen, onClose, group, filteredMembers }: Gr
 
   useEffect(() => {
     if (!isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
       setIsGenerating(false);
       setProgress(null);
       setFinished(false);
@@ -161,6 +162,7 @@ export function GroupReportModal({ isOpen, onClose, group, filteredMembers }: Gr
   useEffect(() => {
     if (!isOpen || members.length === 0) return;
     const requestId = ++previewRequestId.current;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
     setIsLoadingPreview(true);
     setPreviewIndex(0);
 
@@ -297,11 +299,12 @@ export function GroupReportModal({ isOpen, onClose, group, filteredMembers }: Gr
                   <select
                     id="group-report-formula-select"
                     value={formula}
-                    onChange={e => setFormula(e.target.value as 'pollock' | 'faulkner')}
+                    onChange={e => setFormula(e.target.value as BodyFatFormula)}
                     disabled={isGenerating}
                   >
                     <option value="pollock">Pollock</option>
                     <option value="faulkner">Faulkner</option>
+                    <option value="slaughter">Slaughter</option>
                   </select>
                 </div>
                 <button

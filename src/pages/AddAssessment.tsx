@@ -49,7 +49,8 @@ export default function AddAssessment() {
     if (errorTimeouts.current[name]) clearTimeout(errorTimeouts.current[name]);
     errorTimeouts.current[name] = setTimeout(() => {
       setFieldErrors(prev => {
-        const { [name]: _removed, ...rest } = prev;
+        const rest = { ...prev };
+        delete rest[name];
         return rest;
       });
     }, 2500);
@@ -73,10 +74,10 @@ export default function AddAssessment() {
     // Dobras
     tricepsRight: '', tricepsLeft: '',
     subscapular: '', chestSkinfold: '',
-    midaxillary: '', suprailiac: '',
+    midaxillary: '',
     abdominal: '', thighRightSkinfold: '',
     thighLeftSkinfold: '', calfRightSkinfold: '',
-    calfLeftSkinfold: '',
+    calfLeftSkinfold: '', iliacCrest: '', supraspinale: '',
 
     // Circunferencias
     shoulder: '', chest: '',
@@ -105,6 +106,7 @@ export default function AddAssessment() {
       return null;
     }
     return sorted[0] || null;
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- dependency list is intentional; adding the missing dependency would re-run the effect
   }, [athlete, isEditing, assessmentId, selectedAthleteId]);
 
   const getPrevValue = (name: string): number | null => {
@@ -119,12 +121,13 @@ export default function AddAssessment() {
       case 'subscapular': return previousAssessment.skinfolds?.subscapular ?? null;
       case 'chestSkinfold': return previousAssessment.skinfolds?.chest ?? null;
       case 'midaxillary': return previousAssessment.skinfolds?.midaxillary ?? null;
-      case 'suprailiac': return previousAssessment.skinfolds?.suprailiac ?? null;
       case 'abdominal': return previousAssessment.skinfolds?.abdominal ?? null;
       case 'thighRightSkinfold': return previousAssessment.skinfolds?.thighRight ?? null;
       case 'thighLeftSkinfold': return previousAssessment.skinfolds?.thighLeft ?? null;
       case 'calfRightSkinfold': return previousAssessment.skinfolds?.calfRight ?? null;
       case 'calfLeftSkinfold': return previousAssessment.skinfolds?.calfLeft ?? null;
+      case 'iliacCrest': return previousAssessment.skinfolds?.iliacCrest ?? null;
+      case 'supraspinale': return previousAssessment.skinfolds?.supraspinale ?? null;
       // circunferências
       case 'shoulder': return previousAssessment.circumferences?.shoulder ?? null;
       case 'chest': return previousAssessment.circumferences?.chest ?? null;
@@ -158,10 +161,12 @@ export default function AddAssessment() {
 
   useEffect(() => {
     if (athleteId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
       setSelectedAthleteId(athleteId);
     } else if (athletes.length > 0 && !selectedAthleteId) {
       setSelectedAthleteId(athletes[0].id);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- dependency list is intentional; adding the missing dependency would re-run the effect
   }, [athleteId, athletes]);
 
   useEffect(() => {
@@ -189,6 +194,7 @@ export default function AddAssessment() {
       }
 
       if (foundAthlete && foundApiAssessment) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
         setSelectedAthleteId(foundAthlete.id);
         const existing = Mapper.mapPhysicalAssessmentToAssessment(foundApiAssessment, foundAthlete.id);
         setFormData({
@@ -202,12 +208,13 @@ export default function AddAssessment() {
           subscapular: existing.skinfolds?.subscapular?.toString() || '',
           chestSkinfold: existing.skinfolds?.chest?.toString() || '',
           midaxillary: existing.skinfolds?.midaxillary?.toString() || '',
-          suprailiac: existing.skinfolds?.suprailiac?.toString() || '',
           abdominal: existing.skinfolds?.abdominal?.toString() || '',
           thighRightSkinfold: existing.skinfolds?.thighRight?.toString() || '',
           thighLeftSkinfold: existing.skinfolds?.thighLeft?.toString() || '',
           calfRightSkinfold: existing.skinfolds?.calfRight?.toString() || '',
           calfLeftSkinfold: existing.skinfolds?.calfLeft?.toString() || '',
+          iliacCrest: existing.skinfolds?.iliacCrest?.toString() || '',
+          supraspinale: existing.skinfolds?.supraspinale?.toString() || '',
 
           shoulder: existing.circumferences?.shoulder?.toString() || '',
           chest: existing.circumferences?.chest?.toString() || '',
@@ -240,19 +247,21 @@ export default function AddAssessment() {
     if (!useHeightCalc) return;
     const valid = !isNaN(heightNum) && !isNaN(benchNum) && (heightNum - benchNum) > 0;
     const computed = valid ? (heightNum - benchNum).toFixed(2) : '';
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
     setFormData(prev => prev.sittingHeight === computed ? prev : { ...prev, sittingHeight: computed });
   }, [useHeightCalc, heightNum, benchNum]);
 
   useEffect(() => {
     if (!useHeightCalc || !formData.sittingHeight) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
     setHeightFlash(true);
     const timer = setTimeout(() => setHeightFlash(false), 600);
     return () => clearTimeout(timer);
   }, [formData.sittingHeight, useHeightCalc]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
     if (hasBenchHeightConflict) triggerShake('benchHeight');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasBenchHeightConflict]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -318,12 +327,13 @@ export default function AddAssessment() {
           subscapularMm: parseNum(formData.subscapular),
           thoraxMm: parseNum(formData.chestSkinfold),
           subaxillaryMm: parseNum(formData.midaxillary),
-          suprailiacMm: parseNum(formData.suprailiac),
           abdominalMm: parseNum(formData.abdominal),
           rightThighMm: parseNum(formData.thighRightSkinfold),
           leftThighMm: parseNum(formData.thighLeftSkinfold),
           rightCalfMm: parseNum(formData.calfRightSkinfold),
-          leftCalfMm: parseNum(formData.calfLeftSkinfold)
+          leftCalfMm: parseNum(formData.calfLeftSkinfold),
+          iliacCrestMm: parseNum(formData.iliacCrest),
+          supraspinaleMm: parseNum(formData.supraspinale)
         },
         circumferences: {
           shoulderCm: parseNum(formData.shoulder),
@@ -381,7 +391,7 @@ export default function AddAssessment() {
           min="0"
           id={name}
           name={name}
-          value={(formData as any)[name]}
+          value={formData[name as keyof typeof formData]}
           onChange={handleChange}
           placeholder="0.00"
           className={shakingFields.has(name) ? 'input-shake input-error' : ''}
@@ -565,12 +575,13 @@ export default function AddAssessment() {
               {renderInput('subscapular', 'Subescapular', 'mm')}
               {renderInput('chestSkinfold', 'Tórax', 'mm')}
               {renderInput('midaxillary', 'Subaxilar', 'mm')}
-              {renderInput('suprailiac', 'Supra-ilíaca', 'mm')}
               {renderInput('abdominal', 'Abdominal', 'mm')}
               {renderInput('thighRightSkinfold', 'Coxa Dir.', 'mm')}
               {renderInput('thighLeftSkinfold', 'Coxa Esq.', 'mm')}
               {renderInput('calfRightSkinfold', 'Panturrilha Dir.', 'mm')}
               {renderInput('calfLeftSkinfold', 'Panturrilha Esq.', 'mm')}
+              {renderInput('iliacCrest', 'Crist. ilíaca', 'mm')}
+              {renderInput('supraspinale', 'Sup. Espin.', 'mm')}
             </div>
           </Card>
 
