@@ -2,11 +2,13 @@ import * as ApiTypes from '../types/api';
 import type { Athlete } from '../types/athlete';
 import type { Assessment } from '../types/assessment';
 
-export const mapOldToNewAthlete = (athlete: Partial<Athlete>): Partial<ApiTypes.CreateAthleteCommand> => {
+type LegacyAthleteFields = Partial<Athlete> & { sportId?: string; position?: string; sector?: string };
+
+export const mapOldToNewAthlete = (athlete: LegacyAthleteFields): Partial<ApiTypes.CreateAthleteCommand> => {
   return {
     fullName: athlete.name,
-    sportId: (athlete as any).sportId || '', // Precisamos garantir que temos o ID
-    sector: (athlete as any).sportObservation || (athlete as any).position || (athlete as any).sector || '',
+    sportId: athlete.sportId || '', // Precisamos garantir que temos o ID
+    sector: athlete.sportObservation || athlete.position || athlete.sector || '',
     phase: mapPhase(athlete.competitivePhase),
     category: athlete.category || '',
     sex: mapSex(athlete.gender),
@@ -116,12 +118,13 @@ export const mapAssessmentToPhysicalAssessment = (assessment: Assessment): ApiTy
       subscapularMm: assessment.skinfolds.subscapular,
       thoraxMm: assessment.skinfolds.chest,
       subaxillaryMm: assessment.skinfolds.midaxillary,
-      suprailiacMm: assessment.skinfolds.suprailiac,
       abdominalMm: assessment.skinfolds.abdominal,
       rightThighMm: assessment.skinfolds.thighRight,
       leftThighMm: assessment.skinfolds.thighLeft,
       rightCalfMm: assessment.skinfolds.calfRight,
-      leftCalfMm: assessment.skinfolds.calfLeft
+      leftCalfMm: assessment.skinfolds.calfLeft,
+      iliacCrestMm: assessment.skinfolds.iliacCrest ?? 0,
+      supraspinaleMm: assessment.skinfolds.supraspinale ?? 0
     } : null,
     circumferences: assessment.circumferences ? {
       shoulderCm: assessment.circumferences.shoulder,
@@ -157,14 +160,15 @@ export const mapPhysicalAssessmentToAssessment = (pa: ApiTypes.PhysicalAssessmen
       subscapular: pa.skinfolds.subscapularMm,
       chest: pa.skinfolds.thoraxMm,
       midaxillary: pa.skinfolds.subaxillaryMm,
-      suprailiac: pa.skinfolds.suprailiacMm,
       abdominal: pa.skinfolds.abdominalMm,
       thighRight: pa.skinfolds.rightThighMm,
       thighLeft: pa.skinfolds.leftThighMm,
       calfRight: pa.skinfolds.rightCalfMm,
-      calfLeft: pa.skinfolds.leftCalfMm
+      calfLeft: pa.skinfolds.leftCalfMm,
+      iliacCrest: pa.skinfolds.iliacCrestMm ?? 0,
+      supraspinale: pa.skinfolds.supraspinaleMm ?? 0
     } : {
-      tricepsRight: 0, tricepsLeft: 0, subscapular: 0, chest: 0, midaxillary: 0, suprailiac: 0, abdominal: 0, thighRight: 0, thighLeft: 0, calfRight: 0, calfLeft: 0
+      tricepsRight: 0, tricepsLeft: 0, subscapular: 0, chest: 0, midaxillary: 0, abdominal: 0, thighRight: 0, thighLeft: 0, calfRight: 0, calfLeft: 0, iliacCrest: 0, supraspinale: 0
     },
     circumferences: pa.circumferences ? {
       shoulder: pa.circumferences.shoulderCm,

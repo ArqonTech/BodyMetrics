@@ -67,6 +67,7 @@ export function AthleteProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (user && !hasFetched) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
       fetchAthletes();
     }
     // Se o usuário deslogar, resetamos o estado
@@ -147,6 +148,7 @@ export function AthleteProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- dependency list is intentional; adding the missing dependency would re-run the effect
   }, [fetchAthletes]);
 
   const refreshAthletes = useCallback(() => fetchAthletes(1), [fetchAthletes]);
@@ -171,6 +173,7 @@ export function AthleteProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- context file intentionally exports its provider and hook together
 export function useAthleteContext() {
   const context = useContext(AthleteContext);
   if (context === undefined) {

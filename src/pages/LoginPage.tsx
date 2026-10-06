@@ -40,13 +40,14 @@ export default function LoginPage() {
         await createUserWithEmailAndPassword(auth, email, password);
       }
       navigate('/dashboard');
-    } catch (err: any) {
+    } catch (err) {
+      const authError = err as { code?: string };
       console.error(err);
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+      if (authError.code === 'auth/user-not-found' || authError.code === 'auth/wrong-password' || authError.code === 'auth/invalid-credential') {
         setError('E-mail ou senha incorretos.');
-      } else if (err.code === 'auth/email-already-in-use') {
+      } else if (authError.code === 'auth/email-already-in-use') {
         setError('Este e-mail já está em uso.');
-      } else if (err.code === 'auth/weak-password') {
+      } else if (authError.code === 'auth/weak-password') {
         setError('A senha deve ter pelo menos 6 caracteres.');
       } else {
         setError('Ocorreu um erro ao realizar o login. Tente novamente.');

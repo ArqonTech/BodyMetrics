@@ -1,6 +1,8 @@
 import type { Assessment } from '../types/assessment';
 import type { Athlete } from '../types/athlete';
 
+export type BodyFatFormula = 'pollock' | 'faulkner' | 'slaughter';
+
 export interface AthleteMetrics {
   peso: number;
   altura: number;
@@ -93,7 +95,7 @@ export function calculateAge(birthDateStr: string | undefined, referenceDateStr:
 export function calculateMetrics(
   evalData: Assessment | undefined,
   mappedAthlete: Athlete | null,
-  formula: 'pollock' | 'faulkner'
+  formula: BodyFatFormula
 ): AthleteMetrics | null {
   if (!evalData) return null;
 
@@ -115,9 +117,10 @@ export function calculateMetrics(
     (sf.subscapular || 0) +
     (sf.chest || 0) +
     (sf.midaxillary || 0) +
-    (sf.suprailiac || 0) +
     (sf.abdominal || 0) +
-    (sf.thighRight || 0);
+    (sf.thighRight || 0) +
+    (sf.iliacCrest || 0) +
+    (sf.supraspinale || 0);
 
   // Formula de Pollock
   let pollock = 0;
@@ -127,10 +130,21 @@ export function calculateMetrics(
   }
 
   // Formula de Faulkner
-  const faulknerSum = (sf.tricepsRight || 0) + (sf.subscapular || 0) + (sf.suprailiac || 0) + (sf.abdominal || 0);
+  const faulknerSum = (sf.tricepsRight || 0) + (sf.subscapular || 0) + (sf.iliacCrest || 0) + (sf.abdominal || 0);
   const faulkner = faulknerSum > 0 ? (faulknerSum * 0.153) + 5.783 : 0;
 
-  const percentualGordura = formula === 'pollock' ? Math.max(0, pollock) : Math.max(0, faulkner);
+  // Formula de Slaughter (tríceps + subescapular), por sexo
+  const slaughterSum = (sf.tricepsRight || 0) + (sf.subscapular || 0);
+  let slaughter = 0;
+  if (slaughterSum > 0) {
+    const isMulher = mappedAthlete?.gender === 'Feminino';
+    slaughter = isMulher
+      ? (slaughterSum <= 35 ? 1.33 * slaughterSum - 0.013 * Math.pow(slaughterSum, 2) - 2.5 : 0.546 * slaughterSum + 9.7)
+      : (slaughterSum <= 35 ? 1.21 * slaughterSum - 0.008 * Math.pow(slaughterSum, 2) - 1.7 : 0.783 * slaughterSum + 1.6);
+    slaughter = Math.round(slaughter * 100) / 100;
+  }
+
+  const percentualGordura = Math.max(0, formula === 'pollock' ? pollock : formula === 'faulkner' ? faulkner : slaughter);
   const gordura = (peso * percentualGordura) / 100;
 
   const circ: Partial<Assessment['circumferences']> = evalData.circumferences || {};
@@ -234,11 +248,11 @@ export function calculateMetrics(
     },
     relacao: {
       coxa: (circ.kneeRight || 0) > 0 ? ccCoxa / (circ.kneeRight || 0) : 0,
-      pantu: ((circ as any).ankle || 0) > 0 ? ccPantu / ((circ as any).ankle || 0) : 0,
+      pantu: (circ.ankle || 0) > 0 ? ccPantu / (circ.ankle || 0) : 0,
       braco: (circ.wristRight || 0) > 0 ? ccBraco / (circ.wristRight || 0) : 0,
       ccCoxa, ccPantu, ccBraco,
       diamJoelho: circ.kneeRight || 0,
-      diamTornozelo: (circ as any).ankle || 0,
+      diamTornozelo: circ.ankle || 0,
       diamPunho: circ.wristRight || 0
     }
   };

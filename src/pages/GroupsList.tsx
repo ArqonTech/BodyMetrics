@@ -4,6 +4,7 @@ import { Users, Plus, X, ChevronRight, UsersRound } from 'lucide-react';
 import { Card } from '../components/Card';
 import { Loading } from '../components/Loading';
 import { useGroups } from '../hooks/useGroups';
+import { asApiError } from '../utils/apiError';
 import './GroupsList.css';
 
 export default function GroupsList() {
@@ -32,8 +33,8 @@ export default function GroupsList() {
       const group = await createGroup(trimmed);
       setIsModalOpen(false);
       navigate(`/groups/${group.id}`);
-    } catch (err: any) {
-      const data = err.response?.data;
+    } catch (err) {
+      const data = asApiError(err).response?.data;
       let msg = 'Não foi possível criar o grupo. Tente outro nome.';
       if (data?.errors) {
         msg = Object.values(data.errors).flat().join('. ');

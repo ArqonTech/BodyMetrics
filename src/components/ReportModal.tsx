@@ -10,7 +10,7 @@ import { createDefaultReportSelections } from '../types/report';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { generatePdfFromNode } from '../utils/pdfReport';
 import { calculateMetrics } from '../utils/metrics';
-import type { AthleteMetrics } from '../utils/metrics';
+import type { AthleteMetrics, BodyFatFormula } from '../utils/metrics';
 import * as Mapper from '../utils/mapper';
 import apiService from '../services/api.service';
 import './ReportModal.css';
@@ -21,9 +21,9 @@ interface ReportModalProps {
   athlete: Athlete;
   currentEval?: Assessment;
   compareEval?: Assessment;
-  currentMetrics: any;
-  compareMetrics: any;
-  formula: 'pollock' | 'faulkner';
+  currentMetrics: AthleteMetrics | null | undefined;
+  compareMetrics: AthleteMetrics | null | undefined;
+  formula: BodyFatFormula;
   athleteGroup?: AthleteGroupViewModel;
 }
 
@@ -111,6 +111,7 @@ export function ReportModal({
 
   useEffect(() => {
     if (!isOpen || !athleteGroup) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
       setShowGroupAverage(false);
       setGroupAverageMetrics(null);
       return;

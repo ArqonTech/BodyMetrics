@@ -63,12 +63,13 @@ export function AssessmentListModal({
         {renderDetail('Subescapular', fmt(sf?.subscapular))}
         {renderDetail('Tórax', fmt(sf?.chest))}
         {renderDetail('Subaxilar', fmt(sf?.midaxillary))}
-        {renderDetail('Supra-ilíaca', fmt(sf?.suprailiac))}
         {renderDetail('Abdominal', fmt(sf?.abdominal))}
         {renderDetail('Coxa D.', fmt(sf?.thighRight))}
         {renderDetail('Coxa E.', fmt(sf?.thighLeft))}
         {renderDetail('Pantu. D.', fmt(sf?.calfRight))}
         {renderDetail('Pantu. E.', fmt(sf?.calfLeft))}
+        {renderDetail('Crist. ilíaca', fmt(sf?.iliacCrest))}
+        {renderDetail('Sup. Espin.', fmt(sf?.supraspinale))}
       </div>
     </div>
   );
@@ -90,8 +91,8 @@ export function AssessmentListModal({
         {renderDetail('Pantu. E.', fmt(c?.calfLeft))}
         {renderDetail('D. Punho', fmt(c?.wristRight))}
         {renderDetail('D. Joelho', fmt(c?.kneeRight))}
-        {renderDetail('D. Tornozelo', fmt((c as any)?.ankle))}
-        {renderDetail('Envergadura', fmt((c as any)?.envergadura))}
+        {renderDetail('D. Tornozelo', fmt(c?.ankle))}
+        {renderDetail('Envergadura', fmt(c?.envergadura))}
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ import * as ApiTypes from '../types/api';
 import * as Mapper from '../utils/mapper';
 import { Card } from '../components/Card';
 import { DatePicker } from '../components/DatePicker';
-import { ImageCropperModal } from '../components/ImageCropperModal';
+import { ImageCropperModal, type CropSettings } from '../components/ImageCropperModal';
 import { getCroppedImg } from '../utils/imageUtils';
 import { Camera, X } from 'lucide-react';
 import { SearchableSelect, NEW_OPTION_PREFIX } from '../components/SearchableSelect';
@@ -52,6 +52,7 @@ export default function AddAthlete() {
     if (isEditing && athleteId) {
       const athlete = getAthleteById(athleteId);
       if (athlete) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- resets/derives local state when props change; restructuring would alter render timing
         setFormData({
           name: athlete.fullName,
           sportId: athlete.sportId,
@@ -200,7 +201,7 @@ export default function AddAthlete() {
     }
   };
 
-  const handleCropComplete = async (cropSettings: any) => {
+  const handleCropComplete = async (cropSettings: CropSettings) => {
     try {
       const croppedBase64 = await getCroppedImg(
         imageToCrop,

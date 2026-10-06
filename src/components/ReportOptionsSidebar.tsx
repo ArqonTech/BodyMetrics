@@ -44,7 +44,8 @@ const SECTION_ITEMS: Record<keyof ReportSelections, { id: string; label: string 
   skinfolds: [
     { id: 'tricepsRight', label: 'Tríceps D.' }, { id: 'tricepsLeft', label: 'Tríceps E.' },
     { id: 'subscapular', label: 'Subesc.' }, { id: 'chest', label: 'Tórax' },
-    { id: 'midaxillary', label: 'Subax.' }, { id: 'suprailiac', label: 'Supra-ilí.' },
+    { id: 'midaxillary', label: 'Subax.' },
+    { id: 'iliacCrest', label: 'Crist. ilíaca' }, { id: 'supraspinale', label: 'Sup. Espin.' },
     { id: 'abdominal', label: 'Abd.' }, { id: 'thighRight', label: 'Coxa D.' },
     { id: 'thighLeft', label: 'Coxa E.' }, { id: 'calfRight', label: 'Pantu. D.' },
     { id: 'calfLeft', label: 'Pantu. E.' }
