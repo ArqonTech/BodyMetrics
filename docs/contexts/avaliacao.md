@@ -8,7 +8,7 @@ Representa um conjunto de medições antropométricas realizadas em um atleta em
 - **athleteId**: ID do atleta a quem a avaliação pertence.
 - **date**: Data em que a avaliação foi realizada.
 - **Medidas Básicas**: Peso (kg), Altura (cm) e Altura Sentado (cm).
-- **Dobras Cutâneas (mm)**: Tríceps D, Tríceps E, Subescapular, Tórax, Subaxilar, Abdominal, Coxa D, Coxa E, Panturrilha D, Panturrilha E, Crista ilíaca (`iliacCrest`), Supraespinal (`supraspinale`).
+- **Dobras Cutâneas (mm)**: Tríceps D, Tríceps E, Subescapular, Tórax, Subaxilar, Crista ilíaca (`iliacCrest`), Supraespinal (`supraspinale`), Abdominal, Coxa D, Coxa E, Panturrilha D, Panturrilha E. Ordem de exibição: Subaxilar > Crista ilíaca > Supraespinal > Abdominal.
 - **Circunferências (cm)**: Ombro, Peitoral, Braço D, Braço E, Cintura, Quadril, Medial D, Medial E, Panturrilha D, Panturrilha E, Diâmetro Punho, Diâmetro Joelho.
 
 ## Fórmulas Utilizadas (Dashboard)

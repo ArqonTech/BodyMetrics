@@ -456,13 +456,13 @@ export const ReportPaper = forwardRef<HTMLDivElement, ReportPaperProps>(function
         { id: 'subscapular', label: 'Subescapular', cur: currentEval?.skinfolds?.subscapular, cmp: compareEval?.skinfolds?.subscapular, unit: 'mm' },
         { id: 'chest', label: 'Tórax', cur: currentEval?.skinfolds?.chest, cmp: compareEval?.skinfolds?.chest, unit: 'mm' },
         { id: 'midaxillary', label: 'Subaxilar', cur: currentEval?.skinfolds?.midaxillary, cmp: compareEval?.skinfolds?.midaxillary, unit: 'mm' },
+        { id: 'iliacCrest', label: 'Crist. ilíaca', cur: currentEval?.skinfolds?.iliacCrest, cmp: compareEval?.skinfolds?.iliacCrest, unit: 'mm' },
+        { id: 'supraspinale', label: 'Sup. Espin.', cur: currentEval?.skinfolds?.supraspinale, cmp: compareEval?.skinfolds?.supraspinale, unit: 'mm' },
         { id: 'abdominal', label: 'Abdominal', cur: currentEval?.skinfolds?.abdominal, cmp: compareEval?.skinfolds?.abdominal, unit: 'mm' },
         { id: 'thighRight', label: 'Coxa Dir.', cur: currentEval?.skinfolds?.thighRight, cmp: compareEval?.skinfolds?.thighRight, unit: 'mm' },
         { id: 'thighLeft', label: 'Coxa Esq.', cur: currentEval?.skinfolds?.thighLeft, cmp: compareEval?.skinfolds?.thighLeft, unit: 'mm' },
         { id: 'calfRight', label: 'Panturrilha Dir.', cur: currentEval?.skinfolds?.calfRight, cmp: compareEval?.skinfolds?.calfRight, unit: 'mm' },
-        { id: 'calfLeft', label: 'Panturrilha Esq.', cur: currentEval?.skinfolds?.calfLeft, cmp: compareEval?.skinfolds?.calfLeft, unit: 'mm' },
-        { id: 'iliacCrest', label: 'Crist. ilíaca', cur: currentEval?.skinfolds?.iliacCrest, cmp: compareEval?.skinfolds?.iliacCrest, unit: 'mm' },
-        { id: 'supraspinale', label: 'Sup. Espin.', cur: currentEval?.skinfolds?.supraspinale, cmp: compareEval?.skinfolds?.supraspinale, unit: 'mm' }
+        { id: 'calfLeft', label: 'Panturrilha Esq.', cur: currentEval?.skinfolds?.calfLeft, cmp: compareEval?.skinfolds?.calfLeft, unit: 'mm' }
       ].filter(item => (selections.skinfolds.items)[item.id]))}
 
       {isAnySelected(selections, 'circumferences') && renderTableSection('Circunferências', [
