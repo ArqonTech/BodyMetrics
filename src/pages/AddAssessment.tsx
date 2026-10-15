@@ -575,13 +575,13 @@ export default function AddAssessment() {
               {renderInput('subscapular', 'Subescapular', 'mm')}
               {renderInput('chestSkinfold', 'Tórax', 'mm')}
               {renderInput('midaxillary', 'Subaxilar', 'mm')}
+              {renderInput('iliacCrest', 'Crist. ilíaca', 'mm')}
+              {renderInput('supraspinale', 'Sup. Espin.', 'mm')}
               {renderInput('abdominal', 'Abdominal', 'mm')}
               {renderInput('thighRightSkinfold', 'Coxa Dir.', 'mm')}
               {renderInput('thighLeftSkinfold', 'Coxa Esq.', 'mm')}
               {renderInput('calfRightSkinfold', 'Panturrilha Dir.', 'mm')}
               {renderInput('calfLeftSkinfold', 'Panturrilha Esq.', 'mm')}
-              {renderInput('iliacCrest', 'Crist. ilíaca', 'mm')}
-              {renderInput('supraspinale', 'Sup. Espin.', 'mm')}
             </div>
           </Card>
 
