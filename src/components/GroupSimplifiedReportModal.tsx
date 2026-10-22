@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   X, Download, LayoutList, Users as UsersIcon, AlertCircle, FileSpreadsheet,
-  Ruler, Scale, Activity, Percent
+  Ruler, Scale, Activity, Percent, ArrowUpRight, ArrowDownRight, Minus
 } from 'lucide-react';
 import { Loading } from './Loading';
 import {
@@ -15,6 +15,8 @@ import { calculateMetrics, calculateAge } from '../utils/metrics';
 import * as Mapper from '../utils/mapper';
 import apiService from '../services/api.service';
 import type { AthleteGroupViewModel } from '../types/api';
+import type { Athlete } from '../types/athlete';
+import type { Assessment } from '../types/assessment';
 import './ReportModal.css';
 import './GroupSimplifiedReportModal.css';
 
@@ -41,6 +43,8 @@ interface SimplifiedReportRow {
   difCoxa: number;
   difPantu: number;
   difBraco: number;
+  dataAvaliacao?: string;
+  anterior: Partial<Record<SimplifiedReportColumnKey, number>> | null;
 }
 
 type FatColorKey = 'yellow' | 'green' | 'orange' | 'red';
@@ -61,6 +65,42 @@ function getFatColorKey(pct: number): FatColorKey | null {
   if (pct < 10) return 'green';
   if (pct < 12) return 'orange';
   return 'red';
+}
+
+// Colunas com evolução vs. última avaliação; o valor indica se "menor é melhor" (mesma regra do dashboard principal)
+const TREND_INVERSE_GOOD: Partial<Record<SimplifiedReportColumnKey, boolean>> = {
+  peso: true,
+  sumDobras: true,
+  faulkner: true,
+  pollock: true,
+  mediaFP: true,
+  dpvc: false,
+  difCoxa: true,
+  difPantu: true,
+  difBraco: true
+};
+
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return '-';
+  const [yyyy, mm, dd] = dateStr.split('T')[0].split('-');
+  return `${dd}/${mm}/${yyyy}`;
+};
+
+function getTrend(key: SimplifiedReportColumnKey, current: number, previous?: number) {
+  const inverseGood = TREND_INVERSE_GOOD[key];
+  if (inverseGood === undefined || previous === undefined) return null;
+  if (!(current > 0) || !(previous > 0)) return null;
+  const diff = current - previous;
+  const decimals = decimalsFor(key);
+  if (Number(diff.toFixed(decimals)) === 0) {
+    return { direction: 'neutral' as const, className: 'trend-neutral', value: (0).toFixed(decimals).replace('.', ',') };
+  }
+  const isUp = diff > 0;
+  return {
+    direction: isUp ? 'up' as const : 'down' as const,
+    className: (inverseGood ? !isUp : isUp) ? 'trend-good' : 'trend-bad',
+    value: Math.abs(diff).toFixed(decimals).replace('.', ',')
+  };
 }
 
 const COLUMN_ICONS: Partial<Record<SimplifiedReportColumnKey, React.ReactNode>> = {
@@ -94,10 +134,11 @@ function sanitizeFileName(name: string) {
   return name.replace(/\s+/g, '_').replace(/[\\/:*?"<>|]/g, '');
 }
 
-function renderMetricTile(col: SimplifiedReportColumnMeta, value: number) {
+function renderMetricTile(col: SimplifiedReportColumnMeta, value: number, previous?: number, isAverage = false) {
   const formatted = formatNumber(value, decimalsFor(col.key));
   const isNA = formatted === '-';
-  const isFat = FAT_COLUMN_KEYS.includes(col.key);
+  const isFat = !isAverage && FAT_COLUMN_KEYS.includes(col.key);
+  const trend = isAverage ? null : getTrend(col.key, value, previous);
   const colorKey = isFat ? getFatColorKey(value) : null;
 
   return (
@@ -107,13 +148,39 @@ function renderMetricTile(col: SimplifiedReportColumnMeta, value: number) {
         <span className="report-metric-label">{col.label}</span>
       </div>
       <div className="report-metric-body">
-        <span className={colorKey ? `report-metric-value simplified-fat-badge simplified-fat-${colorKey}` : 'report-metric-value'}>
+        <span className={colorKey ? `report-metric-value simplified-fat-badge simplified-fat-${colorKey}` : `report-metric-value${isAverage ? ' simplified-average-value' : ''}`}>
           {formatted}
         </span>
         <span className="report-metric-unit">{col.unit}</span>
       </div>
+      {!isAverage && (
+        <div className="report-metric-footer">
+          {trend ? (
+            <>
+              <span className={`report-metric-trend ${trend.className}`}>
+                {trend.direction === 'neutral' ? <Minus size={12} /> : trend.direction === 'up' ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                {trend.value}
+              </span>
+              <span className="simplified-trend-caption">vs. anterior</span>
+            </>
+          ) : <span className="simplified-trend-caption">&nbsp;</span>}
+        </div>
+      )}
     </div>
   );
+}
+
+function computeEvalValues(assessment: Assessment, athlete: Athlete) {
+  const pollockMetrics = calculateMetrics(assessment, athlete, 'pollock');
+  const faulknerMetrics = calculateMetrics(assessment, athlete, 'faulkner');
+  if (!pollockMetrics && !faulknerMetrics) return null;
+
+  const faulknerPct = faulknerMetrics?.percentualGordura ?? 0;
+  const pollockPct = pollockMetrics?.percentualGordura ?? 0;
+  const validPcts = [faulknerPct, pollockPct].filter(v => v > 0);
+  const mediaFP = validPcts.length > 0 ? validPcts.reduce((a, b) => a + b, 0) / validPcts.length : 0;
+
+  return { base: (pollockMetrics ?? faulknerMetrics)!, faulknerPct, pollockPct, mediaFP };
 }
 
 export function GroupSimplifiedReportModal({ isOpen, onClose, group, filteredMembers }: GroupSimplifiedReportModalProps) {
@@ -169,20 +236,16 @@ export function GroupSimplifiedReportModal({ isOpen, onClose, group, filteredMem
           }
 
           const currentEval = assessments[0];
-          const pollockMetrics = calculateMetrics(currentEval, mappedAthlete, 'pollock');
-          const faulknerMetrics = calculateMetrics(currentEval, mappedAthlete, 'faulkner');
+          const current = computeEvalValues(currentEval, mappedAthlete);
 
-          if (!pollockMetrics && !faulknerMetrics) {
+          if (!current) {
             skippedNames.push(member.fullName);
             continue;
           }
 
-          const faulknerPct = faulknerMetrics?.percentualGordura ?? 0;
-          const pollockPct = pollockMetrics?.percentualGordura ?? 0;
-          const validPcts = [faulknerPct, pollockPct].filter(v => v > 0);
-          const mediaFP = validPcts.length > 0 ? validPcts.reduce((a, b) => a + b, 0) / validPcts.length : 0;
-
-          const base = pollockMetrics ?? faulknerMetrics!;
+          const { base, faulknerPct, pollockPct, mediaFP } = current;
+          const previousEval = assessments[1];
+          const previous = previousEval ? computeEvalValues(previousEval, mappedAthlete) : null;
 
           prepared.push({
             memberId: member.id,
@@ -199,7 +262,19 @@ export function GroupSimplifiedReportModal({ isOpen, onClose, group, filteredMem
             alturaPrevista: base.alturaPrevista,
             difCoxa: base.simetria.coxa.diff,
             difPantu: base.simetria.pantu.diff,
-            difBraco: base.simetria.braco.diff
+            difBraco: base.simetria.braco.diff,
+            dataAvaliacao: currentEval.date,
+            anterior: previous ? {
+              peso: previous.base.peso,
+              sumDobras: previous.base.sumDobras,
+              faulkner: previous.faulknerPct,
+              pollock: previous.pollockPct,
+              mediaFP: previous.mediaFP,
+              dpvc: previous.base.hasDpvc ? previous.base.dpvc : undefined,
+              difCoxa: previous.base.simetria.coxa.diff,
+              difPantu: previous.base.simetria.pantu.diff,
+              difBraco: previous.base.simetria.braco.diff
+            } : null
           });
         } catch (err) {
           console.error('Erro ao carregar dados do atleta', member.fullName, err);
@@ -363,7 +438,7 @@ export function GroupSimplifiedReportModal({ isOpen, onClose, group, filteredMem
                         </div>
                         <div className="report-section-body" style={{ padding: '20px' }}>
                           <div className="report-metrics-summary grid-3">
-                            {avgMetricColumns.map(col => renderMetricTile(col, average(rows.map(r => r[col.key] as number))))}
+                            {avgMetricColumns.map(col => renderMetricTile(col, average(rows.map(r => r[col.key] as number)), undefined, true))}
                           </div>
                         </div>
                       </div>
@@ -374,7 +449,10 @@ export function GroupSimplifiedReportModal({ isOpen, onClose, group, filteredMem
                     <div className="report-section" key={row.memberId}>
                       <div className="report-section-card">
                         <div className="report-section-header simplified-athlete-card-header">
-                          <h3 className="report-section-title simplified-athlete-name">{row.nome}</h3>
+                          <div className="simplified-athlete-title">
+                            <h3 className="report-section-title simplified-athlete-name">{row.nome}</h3>
+                            <span className="simplified-athlete-tag simplified-athlete-tag-date">Avaliação: {formatDate(row.dataAvaliacao)}</span>
+                          </div>
                           <div className="simplified-athlete-tags">
                             {showCategoria && <span className="simplified-athlete-tag">{row.categoria}</span>}
                             {showIdade && row.idade > 0 && <span className="simplified-athlete-tag">{row.idade} anos</span>}
@@ -383,7 +461,7 @@ export function GroupSimplifiedReportModal({ isOpen, onClose, group, filteredMem
                         {metricColumns.length > 0 && (
                           <div className="report-section-body" style={{ padding: '20px' }}>
                             <div className="report-metrics-summary grid-3">
-                              {metricColumns.map(col => renderMetricTile(col, row[col.key] as number))}
+                              {metricColumns.map(col => renderMetricTile(col, row[col.key] as number, row.anterior?.[col.key]))}
                             </div>
                           </div>
                         )}

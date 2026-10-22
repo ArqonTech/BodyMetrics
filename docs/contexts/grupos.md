@@ -26,3 +26,4 @@ Este arquivo define o contexto e as regras de negócio para a entidade "Grupo" (
 - No relatório individual, a flag de média só aparece quando o atleta pertence a um grupo; a média exibida é a do grupo atual do atleta.
 - A tela de detalhe do grupo permite filtros múltiplos por esporte, categoria e setor; a exportação em grupo deve respeitar exatamente os atletas visíveis após aplicar esses filtros.
 - Na tela de relatório resumido do grupo, a coluna de Atletas (junto com a ação de remoção) é fixada na rolagem horizontal (sticky), mantendo os nomes dos atletas visíveis ao navegar pelas métricas.
+- No relatório resumido, cada atleta mostra a data da última avaliação ao lado do nome e a evolução (vs. avaliação anterior) em verde/vermelho, seguindo a regra do dashboard principal (menor é melhor em peso, soma de dobras, %gordura e diferenças D/E; maior é melhor em DPVC). A Média do Grupo fica em preto, sem evolução.
