@@ -830,7 +830,7 @@
 
 .sr-value-slot {
   display: inline-block;
-  min-width: 6.5rem;
+  min-width: 5.2rem;
   text-align: right;
 }
 
@@ -850,4 +850,22 @@
   display: inline-block;
   min-width: 5.6rem;
   text-align: right;
+}
+
+/* Cabeçalhos e valores numéricos alinhados à esquerda na mesma coluna */
+.sr-th-numeric,
+.sr-cell-numeric {
+  text-align: left;
+}
+
+.sr-cell-numeric-inner {
+  justify-content: flex-start;
+}
+
+.sr-value-slot {
+  text-align: left;
+}
+
+.sr-avg-inline {
+  text-align: left;
 }
