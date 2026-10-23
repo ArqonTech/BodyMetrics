@@ -791,10 +791,7 @@
 /* ── Evolução vs. avaliação anterior ─────────────────────────────────────── */
 
 .sr-trend {
-  display: inline-flex;
-  align-items: center;
-  gap: 1px;
-  margin-left: 6px;
+  color: inherit;
   font-size: 0.72rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -824,4 +821,33 @@
   text-transform: none;
   letter-spacing: 0;
   color: var(--color-text-muted);
+}
+
+/* Slots de largura fixa: mantêm valor, evolução e média alinhados entre as linhas */
+.sr-cell-numeric-inner {
+  gap: 0;
+}
+
+.sr-value-slot {
+  display: inline-block;
+  min-width: 6.5rem;
+  text-align: right;
+}
+
+.sr-trend-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1px;
+  min-width: 3.6rem;
+  margin-left: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-avg-inline {
+  display: inline-block;
+  min-width: 5.6rem;
+  text-align: right;
 }

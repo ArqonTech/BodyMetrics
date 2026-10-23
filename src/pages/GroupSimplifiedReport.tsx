@@ -398,17 +398,21 @@ export default function GroupSimplifiedReport() {
     const trend = getTrend(col.key, val, previous, allowNegative);
     return (
       <span className="sr-cell-numeric-inner">
-        <span className={colorKey ? `sr-fat-badge sr-fat-${colorKey}` : ''}>
-          {formatted}{unitSuffix}
-        </span>
-        {trend && (
-          <span className={`sr-trend ${trend.className}`} title="Evolução vs. avaliação anterior">
-            {trend.direction === 'neutral' ? <Minus size={11} /> : trend.direction === 'up' ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
-            {trend.value}
+        <span className="sr-value-slot">
+          <span className={colorKey ? `sr-fat-badge sr-fat-${colorKey}` : ''}>
+            {formatted}{unitSuffix}
           </span>
-        )}
-        {avgFormatted && (
-          <span className="sr-avg-inline">({avgFormatted}{unitSuffix})</span>
+        </span>
+        <span className={`sr-trend-slot ${trend ? `sr-trend ${trend.className}` : ''}`} title={trend ? 'Evolução vs. avaliação anterior' : undefined}>
+          {trend && (
+            <>
+              {trend.direction === 'neutral' ? <Minus size={11} /> : trend.direction === 'up' ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
+              {trend.value}
+            </>
+          )}
+        </span>
+        {col.hasAverage && (
+          <span className="sr-avg-inline">{avgFormatted ? `(${avgFormatted}${unitSuffix})` : ''}</span>
         )}
       </span>
     );
