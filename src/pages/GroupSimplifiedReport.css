@@ -852,20 +852,33 @@
   text-align: right;
 }
 
-/* Cabeçalhos e valores numéricos alinhados à esquerda na mesma coluna */
+/* Título centralizado sobre a área do valor; os slots de evolução/média ficam à direita */
 .sr-th-numeric,
 .sr-cell-numeric {
-  text-align: left;
+  text-align: center;
 }
 
 .sr-cell-numeric-inner {
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .sr-value-slot {
-  text-align: left;
+  flex: 1;
+  text-align: center;
 }
 
 .sr-avg-inline {
-  text-align: left;
+  text-align: center;
+}
+
+.sr-th-has-trend {
+  padding-right: calc(1rem + 3.6rem + 6px);
+}
+
+.sr-th-has-avg {
+  padding-right: calc(1rem + 5.6rem);
+}
+
+.sr-th-has-trend.sr-th-has-avg {
+  padding-right: calc(1rem + 3.6rem + 6px + 5.6rem);
 }

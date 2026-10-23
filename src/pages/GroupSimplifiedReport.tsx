@@ -403,14 +403,16 @@ export default function GroupSimplifiedReport() {
             {formatted}{unitSuffix}
           </span>
         </span>
-        <span className={`sr-trend-slot ${trend ? `sr-trend ${trend.className}` : ''}`} title={trend ? 'Evolução vs. avaliação anterior' : undefined}>
-          {trend && (
-            <>
-              {trend.direction === 'neutral' ? <Minus size={11} /> : trend.direction === 'up' ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
-              {trend.value}
-            </>
-          )}
-        </span>
+        {TREND_INVERSE_GOOD[col.key] !== undefined && (
+          <span className={`sr-trend-slot ${trend ? `sr-trend ${trend.className}` : ''}`} title={trend ? 'Evolução vs. avaliação anterior' : undefined}>
+            {trend && (
+              <>
+                {trend.direction === 'neutral' ? <Minus size={11} /> : trend.direction === 'up' ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
+                {trend.value}
+              </>
+            )}
+          </span>
+        )}
         {col.hasAverage && (
           <span className="sr-avg-inline">{avgFormatted ? `(${avgFormatted}${unitSuffix})` : ''}</span>
         )}
@@ -603,7 +605,7 @@ export default function GroupSimplifiedReport() {
                         </th>
                       )}
                       {visibleMetricColumns.map(col => (
-                        <th key={col.key} className="sr-th sr-th-numeric sr-th-sortable" onClick={() => handleSort(col.key)}>
+                        <th key={col.key} className={`sr-th sr-th-numeric sr-th-sortable${TREND_INVERSE_GOOD[col.key] !== undefined ? ' sr-th-has-trend' : ''}${col.hasAverage ? ' sr-th-has-avg' : ''}`} onClick={() => handleSort(col.key)}>
                           <span className="sr-th-icon">{COLUMN_ICONS[col.key]}</span>
                           {col.label}
                           {col.unit && <span className="sr-th-unit"> ({col.unit})</span>}
