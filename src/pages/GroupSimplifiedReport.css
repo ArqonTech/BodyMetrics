@@ -882,3 +882,8 @@
 .sr-th-has-trend.sr-th-has-avg {
   padding-right: calc(1rem + 3.6rem + 6px + 5.6rem);
 }
+
+/* Compensa o ícone de ordenação (12px + 3px de margem) para o título ficar centrado sobre o valor */
+.sr-th-numeric {
+  padding-left: calc(1rem + 15px);
+}
