@@ -213,28 +213,3 @@
   color: #b91c1c !important;
   border-color: #fca5a5;
 }
-
-.simplified-trend-caption {
-  font-size: 6pt;
-  color: #94a3b8;
-}
-
-.simplified-report-paper .report-metric-footer {
-  margin-top: 2px;
-}
-
-.simplified-athlete-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.simplified-athlete-tag-date {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-.simplified-average-value {
-  color: #0f172a;
-}

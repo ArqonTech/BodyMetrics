@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Download, FileSpreadsheet, Users as UsersIcon,
   AlertCircle, LayoutList, Ruler, Scale, Activity, Percent, X,
-  ArrowUp, ArrowDown, ArrowUpDown, Upload, ChevronLeft, ChevronRight, Trash2
+  ArrowUp, ArrowDown, ArrowUpDown, ArrowUpRight, ArrowDownRight, Minus, Upload, ChevronLeft, ChevronRight, Trash2
 } from 'lucide-react';
 import { Loading } from '../components/Loading';
 import {
@@ -17,6 +17,8 @@ import { calculateMetrics, calculateAge } from '../utils/metrics';
 import * as Mapper from '../utils/mapper';
 import apiService from '../services/api.service';
 import type { AthleteGroupViewModel } from '../types/api';
+import type { Athlete } from '../types/athlete';
+import type { Assessment } from '../types/assessment';
 import { useGroups } from '../hooks/useGroups';
 import './GroupSimplifiedReport.css';
 
@@ -39,6 +41,8 @@ interface SimplifiedReportRow {
   difCoxa: number;
   difPantu: number;
   difBraco: number;
+  dataAvaliacao?: string;
+  anterior: Partial<Record<SimplifiedReportColumnKey, number>> | null;
 }
 
 type FatColorKey = 'yellow' | 'green' | 'orange' | 'red';
@@ -84,6 +88,38 @@ function getFatColorKey(pct: number): FatColorKey | null {
 
 const DPVC_KEY: SimplifiedReportColumnKey = 'dpvc';
 
+// Colunas com evolução vs. última avaliação; true = "menor é melhor" (mesma regra do dashboard principal)
+const TREND_INVERSE_GOOD: Partial<Record<SimplifiedReportColumnKey, boolean>> = {
+  peso: true,
+  sumDobras: true,
+  faulkner: true,
+  pollock: true,
+  mediaFP: true,
+  dpvc: false,
+  difCoxa: true,
+  difPantu: true,
+  difBraco: true
+};
+
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return '-';
+  const [yyyy, mm, dd] = dateStr.split('T')[0].split('-');
+  return `${dd}/${mm}/${yyyy}`;
+};
+
+function computeEvalValues(assessment: Assessment, athlete: Athlete) {
+  const pollockMetrics = calculateMetrics(assessment, athlete, 'pollock');
+  const faulknerMetrics = calculateMetrics(assessment, athlete, 'faulkner');
+  if (!pollockMetrics && !faulknerMetrics) return null;
+
+  const faulknerPct = faulknerMetrics?.percentualGordura ?? 0;
+  const pollockPct = pollockMetrics?.percentualGordura ?? 0;
+  const validPcts = [faulknerPct, pollockPct].filter(v => v > 0);
+  const mediaFP = validPcts.length > 0 ? validPcts.reduce((a, b) => a + b, 0) / validPcts.length : 0;
+
+  return { base: (pollockMetrics ?? faulknerMetrics)!, faulknerPct, pollockPct, mediaFP };
+}
+
 const average = (values: number[], allowNegative = false) => {
   const valid = values.filter(v => Number.isFinite(v) && (allowNegative || v > 0));
   if (valid.length === 0) return 0;
@@ -98,6 +134,24 @@ const formatNumber = (val: number | undefined, decimals = 1, allowNegative = fal
 function decimalsFor(key: SimplifiedReportColumnKey) {
   if (key === 'sumDobras' || key === 'altura' || key === 'peso' || key === 'alturaPrevista') return 1;
   return 2;
+}
+
+function getTrend(key: SimplifiedReportColumnKey, current: number, previous?: number, allowNegative = false) {
+  const inverseGood = TREND_INVERSE_GOOD[key];
+  if (inverseGood === undefined || previous === undefined) return null;
+  if (!Number.isFinite(current) || !Number.isFinite(previous)) return null;
+  if (!allowNegative && (current <= 0 || previous <= 0)) return null;
+  const decimals = decimalsFor(key);
+  const diff = current - previous;
+  if (Number(diff.toFixed(decimals)) === 0) {
+    return { direction: 'neutral' as const, className: 'sr-trend-neutral', value: (0).toFixed(decimals).replace('.', ',') };
+  }
+  const isUp = diff > 0;
+  return {
+    direction: isUp ? 'up' as const : 'down' as const,
+    className: (inverseGood ? !isUp : isUp) ? 'sr-trend-good' : 'sr-trend-bad',
+    value: Math.abs(diff).toFixed(decimals).replace('.', ',')
+  };
 }
 
 function sanitizeFileName(name: string) {
@@ -203,21 +257,16 @@ export default function GroupSimplifiedReport() {
           }
 
           const currentEval = assessments[0];
-          const pollockMetrics = calculateMetrics(currentEval, mappedAthlete, 'pollock');
-          const faulknerMetrics = calculateMetrics(currentEval, mappedAthlete, 'faulkner');
+          const current = computeEvalValues(currentEval, mappedAthlete);
 
-          if (!pollockMetrics && !faulknerMetrics) {
+          if (!current) {
             skippedNames.push(member.fullName);
             continue;
           }
 
-          const faulknerPct = faulknerMetrics?.percentualGordura ?? 0;
-          const pollockPct = pollockMetrics?.percentualGordura ?? 0;
-          const validPcts = [faulknerPct, pollockPct].filter(v => v > 0);
-          const mediaFP =
-            validPcts.length > 0 ? validPcts.reduce((a, b) => a + b, 0) / validPcts.length : 0;
-
-          const base = pollockMetrics ?? faulknerMetrics!;
+          const { base, faulknerPct, pollockPct, mediaFP } = current;
+          const previousEval = assessments[1];
+          const previous = previousEval ? computeEvalValues(previousEval, mappedAthlete) : null;
 
           prepared.push({
             memberId: member.id,
@@ -235,7 +284,19 @@ export default function GroupSimplifiedReport() {
             alturaPrevista: base.alturaPrevista,
             difCoxa: base.simetria.coxa.diff,
             difPantu: base.simetria.pantu.diff,
-            difBraco: base.simetria.braco.diff
+            difBraco: base.simetria.braco.diff,
+            dataAvaliacao: currentEval.date,
+            anterior: previous ? {
+              peso: previous.base.peso,
+              sumDobras: previous.base.sumDobras,
+              faulkner: previous.faulknerPct,
+              pollock: previous.pollockPct,
+              mediaFP: previous.mediaFP,
+              dpvc: previous.base.hasDpvc ? previous.base.dpvc : undefined,
+              difCoxa: previous.base.simetria.coxa.diff,
+              difPantu: previous.base.simetria.pantu.diff,
+              difBraco: previous.base.simetria.braco.diff
+            } : null
           });
         } catch (err) {
           console.error('Erro ao carregar dados do atleta', member.fullName, err);
@@ -326,7 +387,7 @@ export default function GroupSimplifiedReport() {
     }
   };
 
-  const renderFatCell = (val: number, col: SimplifiedReportColumnMeta) => {
+  const renderFatCell = (val: number, col: SimplifiedReportColumnMeta, previous?: number) => {
     const allowNegative = col.key === DPVC_KEY;
     const formatted = formatNumber(val, decimalsFor(col.key), allowNegative);
     const isFat = FAT_COLUMN_KEYS.includes(col.key);
@@ -334,11 +395,18 @@ export default function GroupSimplifiedReport() {
     const unitSuffix = col.unit && formatted !== '-' ? ` ${col.unit}` : '';
     const avgVal = col.hasAverage ? avgValues[col.key] : undefined;
     const avgFormatted = avgVal !== undefined ? formatNumber(avgVal, decimalsFor(col.key), allowNegative) : null;
+    const trend = getTrend(col.key, val, previous, allowNegative);
     return (
       <span className="sr-cell-numeric-inner">
         <span className={colorKey ? `sr-fat-badge sr-fat-${colorKey}` : ''}>
           {formatted}{unitSuffix}
         </span>
+        {trend && (
+          <span className={`sr-trend ${trend.className}`} title="Evolução vs. avaliação anterior">
+            {trend.direction === 'neutral' ? <Minus size={11} /> : trend.direction === 'up' ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
+            {trend.value}
+          </span>
+        )}
         {avgFormatted && (
           <span className="sr-avg-inline">({avgFormatted}{unitSuffix})</span>
         )}
@@ -515,7 +583,7 @@ export default function GroupSimplifiedReport() {
                     <tr>
                       <th className="sr-th sr-th-remove pdf-hide" />
                       <th className="sr-th sr-th-name sr-th-sortable" onClick={() => handleSort('nome')}>
-                        ATLETAS {sortIcon('nome')}
+                        ATLETAS <span className="sr-th-sub">(data da avaliação)</span> {sortIcon('nome')}
                       </th>
                       <th className="sr-th sr-th-sortable" onClick={() => handleSort('posicao')}>
                         Posição {sortIcon('posicao')}
@@ -557,7 +625,10 @@ export default function GroupSimplifiedReport() {
                             <X size={14} />
                           </button>
                         </td>
-                        <td className="sr-cell-name">{row.nome}</td>
+                        <td className="sr-cell-name">
+                          <span className="sr-name-text">{row.nome}</span>
+                          <span className="sr-date-tag">{formatDate(row.dataAvaliacao)}</span>
+                        </td>
                         <td className="sr-cell-posicao">{row.posicao}</td>
                         {showCategoria && <td className="sr-cell-categoria">{row.categoria}</td>}
                         {showIdade && (
@@ -567,7 +638,7 @@ export default function GroupSimplifiedReport() {
                         )}
                         {visibleMetricColumns.map(col => (
                           <td key={col.key} className="sr-cell-numeric">
-                            {renderFatCell(row[col.key] as number, col)}
+                            {renderFatCell(row[col.key] as number, col, row.anterior?.[col.key])}
                           </td>
                         ))}
                       </tr>
