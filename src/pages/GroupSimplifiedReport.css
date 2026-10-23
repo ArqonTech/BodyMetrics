@@ -852,7 +852,7 @@
   text-align: right;
 }
 
-/* Título centralizado sobre a área do valor; os slots de evolução/média ficam à direita */
+/* Valor + evolução + média formam um bloco compacto de largura fixa; o título fica centralizado sobre o bloco */
 .sr-th-numeric,
 .sr-cell-numeric {
   text-align: center;
@@ -860,27 +860,24 @@
 
 .sr-cell-numeric-inner {
   justify-content: center;
+  gap: 0;
 }
 
 .sr-value-slot {
-  flex: 1;
-  text-align: center;
+  flex: none;
+  min-width: 4.6rem;
+  text-align: right;
+}
+
+.sr-trend-slot {
+  min-width: 3.4rem;
+  margin-left: 6px;
 }
 
 .sr-avg-inline {
-  text-align: center;
-}
-
-.sr-th-has-trend {
-  padding-right: calc(1rem + 3.6rem + 6px);
-}
-
-.sr-th-has-avg {
-  padding-right: calc(1rem + 5.6rem);
-}
-
-.sr-th-has-trend.sr-th-has-avg {
-  padding-right: calc(1rem + 3.6rem + 6px + 5.6rem);
+  min-width: 5rem;
+  margin-left: 2px;
+  text-align: left;
 }
 
 /* Compensa o ícone de ordenação (12px + 3px de margem) para o título ficar centrado sobre o valor */
