@@ -601,15 +601,25 @@ export default function GroupSimplifiedReport() {
                       )}
                       {showIdade && (
                         <th className="sr-th sr-th-numeric sr-th-sortable" onClick={() => handleSort('idade')}>
-                          Idade {sortIcon('idade')}
+                          <span className="sr-th-grid">
+                            <span className="sr-th-side sr-th-side-left" />
+                            <span className="sr-th-text">Idade</span>
+                            <span className="sr-th-side sr-th-side-right">{sortIcon('idade')}</span>
+                          </span>
                         </th>
                       )}
                       {visibleMetricColumns.map(col => (
                         <th key={col.key} className="sr-th sr-th-numeric sr-th-sortable" onClick={() => handleSort(col.key)}>
-                          <span className="sr-th-icon">{COLUMN_ICONS[col.key]}</span>
-                          {col.label}
-                          {col.unit && <span className="sr-th-unit"> ({col.unit})</span>}
-                          {sortIcon(col.key)}
+                          <span className="sr-th-grid">
+                            <span className="sr-th-side sr-th-side-left">
+                              {!FAT_COLUMN_KEYS.includes(col.key) && <span className="sr-th-icon">{COLUMN_ICONS[col.key]}</span>}
+                            </span>
+                            <span className="sr-th-text">{col.label}</span>
+                            <span className="sr-th-side sr-th-side-right">
+                              {col.unit && !FAT_COLUMN_KEYS.includes(col.key) && <span className="sr-th-unit">({col.unit})</span>}
+                              {sortIcon(col.key)}
+                            </span>
+                          </span>
                         </th>
                       ))}
                     </tr>

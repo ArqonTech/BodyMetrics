@@ -870,17 +870,41 @@
 }
 
 .sr-trend-slot {
-  min-width: 3.4rem;
+  min-width: 2.9rem;
   margin-left: 6px;
 }
 
 .sr-avg-inline {
-  min-width: 5rem;
+  min-width: 4.6rem;
   margin-left: 2px;
   text-align: left;
 }
 
-/* Compensa o ícone de ordenação (12px + 3px de margem) para o título ficar centrado sobre o valor */
-.sr-th-numeric {
-  padding-left: calc(1rem + 15px);
+/* Título centralizado pelo texto: ícone, unidade e ordenação ficam nas laterais */
+.sr-th-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+}
+
+.sr-th-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.sr-th-side-left {
+  justify-content: flex-end;
+}
+
+.sr-th-side-right {
+  justify-content: flex-start;
+}
+
+.sr-th-icon {
+  margin-right: 4px;
+}
+
+.sr-th-unit {
+  margin-left: 4px;
 }
