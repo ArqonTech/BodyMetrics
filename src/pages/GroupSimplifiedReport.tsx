@@ -38,6 +38,8 @@ interface SimplifiedReportRow {
   mediaFP: number;
   dpvc: number;
   alturaPrevista: number;
+  relacaoMusculoOsso: number;
+  relacaoMusculoGordura: number;
   difCoxa: number;
   difPantu: number;
   difBraco: number;
@@ -47,7 +49,7 @@ interface SimplifiedReportRow {
 
 type FatColorKey = 'yellow' | 'green' | 'orange' | 'red';
 
-type SortKey = 'nome' | 'posicao' | SimplifiedReportColumnKey;
+type SortKey = 'nome' | 'posicao' | 'dataAvaliacao' | SimplifiedReportColumnKey;
 type SortDirection = 'asc' | 'desc';
 interface SortState { key: SortKey; direction: SortDirection }
 
@@ -71,6 +73,8 @@ const COLUMN_ICONS: Partial<Record<SimplifiedReportColumnKey, React.ReactNode>> 
   mediaFP: <Percent size={14} />,
   dpvc: <Ruler size={14} />,
   alturaPrevista: <Ruler size={14} />,
+  relacaoMusculoOsso: <Activity size={14} />,
+  relacaoMusculoGordura: <Activity size={14} />,
   difCoxa: <Activity size={14} />,
   difPantu: <Activity size={14} />,
   difBraco: <Activity size={14} />
@@ -96,6 +100,8 @@ const TREND_INVERSE_GOOD: Partial<Record<SimplifiedReportColumnKey, boolean>> = 
   pollock: true,
   mediaFP: true,
   dpvc: false,
+  relacaoMusculoOsso: false,
+  relacaoMusculoGordura: false,
   difCoxa: true,
   difPantu: true,
   difBraco: true
@@ -117,7 +123,13 @@ function computeEvalValues(assessment: Assessment, athlete: Athlete) {
   const validPcts = [faulknerPct, pollockPct].filter(v => v > 0);
   const mediaFP = validPcts.length > 0 ? validPcts.reduce((a, b) => a + b, 0) / validPcts.length : 0;
 
-  return { base: (pollockMetrics ?? faulknerMetrics)!, faulknerPct, pollockPct, mediaFP };
+  const base = (pollockMetrics ?? faulknerMetrics)!;
+  // Relações usam a gordura média (Pollock/Faulkner), coerente com a coluna de média do relatório
+  const gorduraMedia = (base.peso * mediaFP) / 100;
+  const relacaoMusculoOsso = base.relacaoMusculoOsso;
+  const relacaoMusculoGordura = (base.massaMuscular > 0 && gorduraMedia > 0) ? base.massaMuscular / gorduraMedia : 0;
+
+  return { base, faulknerPct, pollockPct, mediaFP, relacaoMusculoOsso, relacaoMusculoGordura };
 }
 
 const average = (values: number[], allowNegative = false) => {
@@ -264,7 +276,7 @@ export default function GroupSimplifiedReport() {
             continue;
           }
 
-          const { base, faulknerPct, pollockPct, mediaFP } = current;
+          const { base, faulknerPct, pollockPct, mediaFP, relacaoMusculoOsso, relacaoMusculoGordura } = current;
           const previousEval = assessments[1];
           const previous = previousEval ? computeEvalValues(previousEval, mappedAthlete) : null;
 
@@ -282,6 +294,8 @@ export default function GroupSimplifiedReport() {
             mediaFP,
             dpvc: base.dpvc,
             alturaPrevista: base.alturaPrevista,
+            relacaoMusculoOsso,
+            relacaoMusculoGordura,
             difCoxa: base.simetria.coxa.diff,
             difPantu: base.simetria.pantu.diff,
             difBraco: base.simetria.braco.diff,
@@ -292,6 +306,8 @@ export default function GroupSimplifiedReport() {
               faulkner: previous.faulknerPct,
               pollock: previous.pollockPct,
               mediaFP: previous.mediaFP,
+              relacaoMusculoOsso: previous.relacaoMusculoOsso,
+              relacaoMusculoGordura: previous.relacaoMusculoGordura,
               dpvc: previous.base.hasDpvc ? previous.base.dpvc : undefined,
               difCoxa: previous.base.simetria.coxa.diff,
               difPantu: previous.base.simetria.pantu.diff,
@@ -331,8 +347,8 @@ export default function GroupSimplifiedReport() {
     const { key, direction } = sortState;
     const sign = direction === 'asc' ? 1 : -1;
     return [...visibleRows].sort((a, b) => {
-      const va = a[key as keyof SimplifiedReportRow];
-      const vb = b[key as keyof SimplifiedReportRow];
+      const va = a[key as keyof SimplifiedReportRow] ?? '';
+      const vb = b[key as keyof SimplifiedReportRow] ?? '';
       if (typeof va === 'string' && typeof vb === 'string') {
         return va.localeCompare(vb, 'pt-BR') * sign;
       }
@@ -589,7 +605,14 @@ export default function GroupSimplifiedReport() {
                     <tr>
                       <th className="sr-th sr-th-remove pdf-hide" />
                       <th className="sr-th sr-th-name sr-th-sortable" onClick={() => handleSort('nome')}>
-                        ATLETAS <span className="sr-th-sub">(data da avaliação)</span> {sortIcon('nome')}
+                        ATLETAS {sortIcon('nome')}
+                        <span
+                          className="sr-th-sub sr-th-sub-sortable"
+                          title="Ordenar por data da avaliação"
+                          onClick={(e) => { e.stopPropagation(); handleSort('dataAvaliacao'); }}
+                        >
+                          (data da avaliação) {sortIcon('dataAvaliacao')}
+                        </span>
                       </th>
                       <th className="sr-th sr-th-sortable" onClick={() => handleSort('posicao')}>
                         Posição {sortIcon('posicao')}

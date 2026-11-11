@@ -9,6 +9,8 @@ export type SimplifiedReportColumnKey =
   | 'mediaFP'
   | 'dpvc'
   | 'alturaPrevista'
+  | 'relacaoMusculoOsso'
+  | 'relacaoMusculoGordura'
   | 'difCoxa'
   | 'difPantu'
   | 'difBraco';
@@ -33,6 +35,8 @@ export const SIMPLIFIED_REPORT_COLUMNS: SimplifiedReportColumnMeta[] = [
   { key: 'mediaFP', label: '% Média Pollock/Faulkner', unit: '%', hasAverage: true },
   { key: 'dpvc', label: 'DPVC', hasAverage: true },
   { key: 'alturaPrevista', label: 'Altura Prevista', unit: 'cm', hasAverage: true },
+  { key: 'relacaoMusculoOsso', label: 'Relação Músculo/Osso', hasAverage: true },
+  { key: 'relacaoMusculoGordura', label: 'Relação Músculo/Gordura', hasAverage: true },
   { key: 'difCoxa', label: 'Dif. Coxa D/E', unit: 'cm', hasAverage: false },
   { key: 'difPantu', label: 'Dif. Panturrilha D/E', unit: 'cm', hasAverage: false },
   { key: 'difBraco', label: 'Dif. Braço D/E', unit: 'cm', hasAverage: false }
@@ -50,6 +54,8 @@ export function createDefaultSimplifiedReportSelections(): SimplifiedReportSelec
     mediaFP: true,
     dpvc: true,
     alturaPrevista: true,
+    relacaoMusculoOsso: true,
+    relacaoMusculoGordura: true,
     difCoxa: true,
     difPantu: true,
     difBraco: true

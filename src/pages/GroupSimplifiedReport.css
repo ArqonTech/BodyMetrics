@@ -908,3 +908,10 @@
 .sr-th-unit {
   margin-left: 4px;
 }
+
+.sr-th-sub-sortable {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

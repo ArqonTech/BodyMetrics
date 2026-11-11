@@ -38,6 +38,8 @@ interface SimplifiedReportRow {
   mediaFP: number;
   dpvc: number;
   alturaPrevista: number;
+  relacaoMusculoOsso: number;
+  relacaoMusculoGordura: number;
   difCoxa: number;
   difPantu: number;
   difBraco: number;
@@ -197,6 +199,8 @@ export function GroupSimplifiedReportModal({ isOpen, onClose, group, filteredMem
             mediaFP,
             dpvc: base.dpvc,
             alturaPrevista: base.alturaPrevista,
+            relacaoMusculoOsso: base.relacaoMusculoOsso,
+            relacaoMusculoGordura: (base.massaMuscular > 0 && base.peso * mediaFP > 0) ? base.massaMuscular / ((base.peso * mediaFP) / 100) : 0,
             difCoxa: base.simetria.coxa.diff,
             difPantu: base.simetria.pantu.diff,
             difBraco: base.simetria.braco.diff

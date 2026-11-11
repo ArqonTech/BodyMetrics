@@ -110,28 +110,26 @@ export function calculateMetrics(
   const peso = evalData.weight;
   const altura = evalData.height;
 
-  // Somatório das dobras
+  // Somatório de 6 dobras: tríceps D, subescapular, supraespinal, abdominal, coxa D e panturrilha D
   const sf: Partial<Assessment['skinfolds']> = evalData.skinfolds || {};
   const sumDobras = (sf.tricepsRight || 0) +
-    (sf.tricepsLeft || 0) +
     (sf.subscapular || 0) +
-    (sf.chest || 0) +
-    (sf.midaxillary || 0) +
+    (sf.supraspinale || 0) +
     (sf.abdominal || 0) +
     (sf.thighRight || 0) +
-    (sf.iliacCrest || 0) +
-    (sf.supraspinale || 0);
+    (sf.calfRight || 0);
 
-  // Formula de Pollock
+  // Formula de Pollock 3 dobras (tríceps D + crista ilíaca + coxa D)
+  const pollockSum = (sf.tricepsRight || 0) + (sf.iliacCrest || 0) + (sf.thighRight || 0);
   let pollock = 0;
-  if (sumDobras > 0 && idade > 0) {
-    const densidade = 1.112 - (0.00043499 * sumDobras) + (0.00000055 * Math.pow(sumDobras, 2)) - (0.00028826 * idade);
+  if (pollockSum > 0 && idade > 0) {
+    const densidade = 1.0994921 - (0.0009929 * pollockSum) + (0.0000023 * Math.pow(pollockSum, 2)) - (0.0001392 * idade);
     pollock = (495 / densidade) - 450;
   }
 
-  // Formula de Faulkner
-  const faulknerSum = (sf.tricepsRight || 0) + (sf.subscapular || 0) + (sf.iliacCrest || 0) + (sf.abdominal || 0);
-  const faulkner = faulknerSum > 0 ? (faulknerSum * 0.153) + 5.783 : 0;
+  // Formula de Faulkner (tríceps D + subescapular + supraespinal + abdominal)
+  const faulknerSum = (sf.tricepsRight || 0) + (sf.subscapular || 0) + (sf.supraspinale || 0) + (sf.abdominal || 0);
+  const faulkner = faulknerSum > 0 ? 5.783 + (0.153 * faulknerSum) : 0;
 
   // Formula de Slaughter (tríceps + subescapular), por sexo
   const slaughterSum = (sf.tricepsRight || 0) + (sf.subscapular || 0);
@@ -157,7 +155,8 @@ export function calculateMetrics(
     ossos = 3.02 * Math.pow(400 * punhoM * joelhoM * Math.pow(alturaM, 2), 0.712);
   }
 
-  const mlg = (gordura > 0 && ossos > 0) ? peso - gordura - ossos : peso - gordura;
+  // Massa livre de gordura = peso total - massa gorda (conforme a fórmula de % gordura selecionada)
+  const mlg = peso - gordura;
 
   // Fatores
   const fatorSexo = mappedAthlete?.gender === 'Feminino' ? 0 : 1;

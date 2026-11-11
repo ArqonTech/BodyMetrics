@@ -153,7 +153,7 @@ export const ReportPaper = forwardRef<HTMLDivElement, ReportPaperProps>(function
 
           <div className="info-item"><strong>Raça / Etnia:</strong> {athlete.race || '-'}</div>
           <div className="info-item"><strong>Alt. Sentado:</strong> {currentEval?.sittingHeight ? `${currentEval.sittingHeight} cm` : '-'}</div>
-          <div className="info-item"><strong>Fórmula:</strong> {formula === 'pollock' ? 'Pollock 7 Dobras' : formula === 'slaughter' ? 'Slaughter' : 'Faulkner'}</div>
+          <div className="info-item"><strong>Fórmula:</strong> {formula === 'pollock' ? 'Pollock 3 Dobras' : formula === 'slaughter' ? 'Slaughter' : 'Faulkner'}</div>
         </div>
       </div>
 
